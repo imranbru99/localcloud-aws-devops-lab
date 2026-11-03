@@ -948,7 +948,7 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
   </div>
 
   <!-- CODE GENERATOR MODAL -->
-  <div id="codeModal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+  <div id="codeModal" onclick="if(event.target===this) closeModal('codeModal')" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
     <div class="bg-white w-full max-w-2xl rounded-lg shadow-xl overflow-hidden">
       <div class="bg-aws-squid text-white px-5 py-3.5 flex items-center justify-between">
         <h3 class="font-bold text-sm flex items-center space-x-2">
@@ -977,7 +977,7 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
   <div id="toastContainer" class="fixed top-14 right-5 z-50 flex flex-col space-y-2 pointer-events-none"></div>
 
   <!-- DYNAMIC AWS RESOURCE CREATION MODAL -->
-  <div id="createResourceModal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+  <div id="createResourceModal" onclick="if(event.target===this) closeModal('createResourceModal')" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
     <div class="bg-white w-full max-w-lg rounded-lg shadow-2xl overflow-hidden border border-gray-200">
       <div class="bg-aws-squid text-white px-5 py-3.5 flex items-center justify-between border-b border-gray-700">
         <h3 class="font-bold text-sm flex items-center space-x-2">
@@ -997,7 +997,7 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
           </span>
           <div class="flex items-center space-x-2">
             <button type="button" onclick="closeModal('createResourceModal')" class="px-4 py-2 rounded border border-gray-300 text-gray-700 font-semibold hover:bg-gray-100">Cancel</button>
-            <button type="submit" id="crmSubmitBtn" class="bg-aws-orange hover:bg-amber-600 text-black px-4 py-2 rounded font-semibold shadow flex items-center space-x-1.5">
+            <button type="submit" id="crmSubmitBtn" class="bg-aws-orange hover:bg-amber-600 text-black px-4 py-2 rounded font-semibold shadow flex items-center space-x-1.5 transition">
               <span id="crmSubmitText">Create</span>
             </button>
           </div>
@@ -1053,12 +1053,15 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
           '</div>' +
           '<div>' +
             '<label class="block font-semibold text-gray-700 mb-1">AWS Region</label>' +
-            '<select id="crm_s3_region" class="w-full border border-gray-300 rounded p-2 bg-white focus:outline-none">' +
-              '<option value="us-east-1">us-east-1 (US East - N. Virginia)</option>' +
-              '<option value="us-west-2">us-west-2 (US West - Oregon)</option>' +
-              '<option value="eu-west-1">eu-west-1 (Europe - Ireland)</option>' +
-              '<option value="ap-southeast-1">ap-southeast-1 (Asia Pacific - Singapore)</option>' +
-            '</select>' +
+            '<div class="grid grid-cols-2 gap-2">' +
+              '<div onclick="selectS3Region(\'us-east-1\', this)" class="s3-reg-card border-2 border-aws-orange bg-amber-50/50 p-2 rounded cursor-pointer text-xs font-semibold text-gray-800">' +
+                '<p class="text-xs">us-east-1</p><p class="text-[10px] text-gray-500 font-normal">US East (N. Virginia)</p>' +
+              '</div>' +
+              '<div onclick="selectS3Region(\'us-west-2\', this)" class="s3-reg-card border border-gray-200 bg-white p-2 rounded cursor-pointer text-xs font-semibold text-gray-800 hover:border-gray-400">' +
+                '<p class="text-xs">us-west-2</p><p class="text-[10px] text-gray-500 font-normal">US West (Oregon)</p>' +
+              '</div>' +
+            '</div>' +
+            '<input type="hidden" id="crm_s3_region" value="us-east-1">' +
           '</div>' +
           '<div class="p-3 bg-gray-50 border border-gray-200 rounded">' +
             '<label class="flex items-center space-x-2 font-semibold text-gray-700">' +
@@ -1079,12 +1082,21 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
           '</div>' +
           '<div>' +
             '<label class="block font-semibold text-gray-700 mb-1">Attach Permissions Policy</label>' +
-            '<select id="crm_iam_policy" class="w-full border border-gray-300 rounded p-2 bg-white focus:outline-none">' +
-              '<option value="AdministratorAccess">AdministratorAccess (Full AWS administrator privileges)</option>' +
-              '<option value="AmazonS3FullAccess">AmazonS3FullAccess (Full access to all S3 storage)</option>' +
-              '<option value="AmazonEC2FullAccess">AmazonEC2FullAccess (Full compute control over EC2)</option>' +
-              '<option value="ReadOnlyAccess">ReadOnlyAccess (View-only permissions across services)</option>' +
-            '</select>' +
+            '<div class="space-y-1.5">' +
+              '<div onclick="selectIamPolicy(\'AdministratorAccess\', this)" class="iam-pol-card border-2 border-aws-orange bg-amber-50/50 p-2 rounded cursor-pointer flex items-center justify-between">' +
+                '<div><p class="font-bold text-xs text-gray-800">AdministratorAccess</p><p class="text-[10px] text-gray-500">Full administrative access across all services</p></div>' +
+                '<span class="bg-red-100 text-red-800 text-[9px] font-bold px-1.5 py-0.5 rounded">Admin</span>' +
+              '</div>' +
+              '<div onclick="selectIamPolicy(\'AmazonS3FullAccess\', this)" class="iam-pol-card border border-gray-200 bg-white p-2 rounded cursor-pointer flex items-center justify-between hover:border-gray-400">' +
+                '<div><p class="font-bold text-xs text-gray-800">AmazonS3FullAccess</p><p class="text-[10px] text-gray-500">Full object and bucket access to S3</p></div>' +
+                '<span class="bg-green-100 text-green-800 text-[9px] font-bold px-1.5 py-0.5 rounded">Storage</span>' +
+              '</div>' +
+              '<div onclick="selectIamPolicy(\'ReadOnlyAccess\', this)" class="iam-pol-card border border-gray-200 bg-white p-2 rounded cursor-pointer flex items-center justify-between hover:border-gray-400">' +
+                '<div><p class="font-bold text-xs text-gray-800">ReadOnlyAccess</p><p class="text-[10px] text-gray-500">Read-only view across resources</p></div>' +
+                '<span class="bg-gray-100 text-gray-700 text-[9px] font-bold px-1.5 py-0.5 rounded">Auditor</span>' +
+              '</div>' +
+            '</div>' +
+            '<input type="hidden" id="crm_iam_policy" value="AdministratorAccess">' +
           '</div>' +
           '<div class="p-3 bg-gray-50 border border-gray-200 rounded">' +
             '<label class="flex items-center space-x-2 font-semibold text-gray-700">' +
@@ -1103,27 +1115,58 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
             '<input type="text" id="crm_ec2_name" placeholder="e.g. AppServer-Production" class="w-full border border-gray-300 rounded p-2 focus:border-aws-orange focus:outline-none">' +
           '</div>' +
           '<div>' +
-            '<label class="block font-semibold text-gray-700 mb-1">Amazon Machine Image (AMI)</label>' +
-            '<select id="crm_ec2_ami" class="w-full border border-gray-300 rounded p-2 bg-white focus:outline-none">' +
-              '<option value="ami-0c55b159cbfafe1f0">Amazon Linux 2023 AMI (Recommended)</option>' +
-              '<option value="ami-053b0d53c279acc90">Ubuntu Server 22.04 LTS (HVM)</option>' +
-              '<option value="ami-022e1a32d3f742bd8">Alpine Linux 3.19 (Minimal)</option>' +
-            '</select>' +
+            '<label class="block font-semibold text-gray-700 mb-1">Application and OS Images (Amazon Machine Image)</label>' +
+            '<div class="grid grid-cols-3 gap-2" id="amiCards">' +
+              '<div onclick="selectAmi(\'ami-0c55b159cbfafe1f0\', this)" class="ami-card border-2 border-aws-orange bg-amber-50/50 p-2.5 rounded-lg cursor-pointer shadow-sm text-center transition">' +
+                '<i class="fa-brands fa-linux text-xl text-gray-800"></i>' +
+                '<p class="font-bold text-xs mt-1 text-gray-900">Amazon Linux</p>' +
+                '<span class="inline-block bg-green-100 text-green-800 text-[9px] font-bold px-1.5 py-0.5 rounded mt-0.5">Free tier</span>' +
+              '</div>' +
+              '<div onclick="selectAmi(\'ami-053b0d53c279acc90\', this)" class="ami-card border border-gray-200 bg-white p-2.5 rounded-lg cursor-pointer hover:border-gray-400 hover:shadow-sm text-center transition">' +
+                '<i class="fa-brands fa-ubuntu text-xl text-orange-600"></i>' +
+                '<p class="font-bold text-xs mt-1 text-gray-900">Ubuntu</p>' +
+                '<span class="inline-block text-[9px] text-gray-500 mt-0.5">22.04 LTS</span>' +
+              '</div>' +
+              '<div onclick="selectAmi(\'ami-022e1a32d3f742bd8\', this)" class="ami-card border border-gray-200 bg-white p-2.5 rounded-lg cursor-pointer hover:border-gray-400 hover:shadow-sm text-center transition">' +
+                '<i class="fa-solid fa-mountain text-xl text-sky-600"></i>' +
+                '<p class="font-bold text-xs mt-1 text-gray-900">Alpine</p>' +
+                '<span class="inline-block text-[9px] text-gray-500 mt-0.5">3.19 Minimal</span>' +
+              '</div>' +
+            '</div>' +
+            '<input type="hidden" id="crm_ec2_ami" value="ami-0c55b159cbfafe1f0">' +
           '</div>' +
           '<div>' +
             '<label class="block font-semibold text-gray-700 mb-1">Instance type</label>' +
-            '<select id="crm_ec2_type" class="w-full border border-gray-300 rounded p-2 bg-white focus:outline-none">' +
-              '<option value="t3.micro">t3.micro — 2 vCPU, 1 GiB Memory (Free tier eligible)</option>' +
-              '<option value="t3.small">t3.small — 2 vCPU, 2 GiB Memory</option>' +
-              '<option value="t3.medium">t3.medium — 2 vCPU, 4 GiB Memory</option>' +
-            '</select>' +
+            '<div class="grid grid-cols-3 gap-2" id="typeCards">' +
+              '<div onclick="selectType(\'t3.micro\', this)" class="type-card border-2 border-aws-orange bg-amber-50/50 p-2 rounded-lg cursor-pointer shadow-sm text-center transition">' +
+                '<p class="font-bold text-xs text-gray-900">t3.micro</p>' +
+                '<p class="text-[10px] text-gray-500">2 vCPU, 1 GiB</p>' +
+                '<span class="inline-block bg-green-100 text-green-800 text-[9px] font-bold px-1 py-0.5 rounded mt-0.5">Free tier</span>' +
+              '</div>' +
+              '<div onclick="selectType(\'t3.small\', this)" class="type-card border border-gray-200 bg-white p-2 rounded-lg cursor-pointer hover:border-gray-400 text-center transition">' +
+                '<p class="font-bold text-xs text-gray-900">t3.small</p>' +
+                '<p class="text-[10px] text-gray-500">2 vCPU, 2 GiB</p>' +
+                '<span class="inline-block text-[9px] text-gray-400 mt-0.5">Standard</span>' +
+              '</div>' +
+              '<div onclick="selectType(\'t3.medium\', this)" class="type-card border border-gray-200 bg-white p-2 rounded-lg cursor-pointer hover:border-gray-400 text-center transition">' +
+                '<p class="font-bold text-xs text-gray-900">t3.medium</p>' +
+                '<p class="text-[10px] text-gray-500">2 vCPU, 4 GiB</p>' +
+                '<span class="inline-block text-[9px] text-gray-400 mt-0.5">Standard</span>' +
+              '</div>' +
+            '</div>' +
+            '<input type="hidden" id="crm_ec2_type" value="t3.micro">' +
           '</div>' +
           '<div>' +
             '<label class="block font-semibold text-gray-700 mb-1">Key pair (login)</label>' +
-            '<select id="crm_ec2_key" class="w-full border border-gray-300 rounded p-2 bg-white focus:outline-none">' +
-              '<option value="localcloud-default-key">localcloud-default-key.pem (Pre-configured)</option>' +
-              '<option value="">Proceed without a key pair</option>' +
-            '</select>' +
+            '<div class="flex items-center space-x-2 border border-gray-200 bg-gray-50 p-2.5 rounded-lg">' +
+              '<i class="fa-solid fa-key text-aws-orange text-sm"></i>' +
+              '<div class="flex-1">' +
+                '<p class="text-xs font-semibold text-gray-800">localcloud-default-key.pem</p>' +
+                '<p class="text-[10px] text-gray-500">Pre-configured RSA SSH key pair</p>' +
+              '</div>' +
+              '<span class="text-[10px] bg-green-100 text-green-800 font-bold px-1.5 py-0.5 rounded">Ready</span>' +
+            '</div>' +
+            '<input type="hidden" id="crm_ec2_key" value="localcloud-default-key">' +
           '</div>';
       } else if (service === 'sqs') {
         iconEl.className = 'fa-solid fa-envelope-open-text text-pink-500';
@@ -1135,11 +1178,18 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
             '<input type="text" id="crm_sqs_name" required placeholder="e.g. order-processing-queue" class="w-full border border-gray-300 rounded p-2 focus:border-aws-orange focus:outline-none">' +
           '</div>' +
           '<div>' +
-            '<label class="block font-semibold text-gray-700 mb-1">Type</label>' +
-            '<select id="crm_sqs_type" class="w-full border border-gray-300 rounded p-2 bg-white focus:outline-none">' +
-              '<option value="standard">Standard (Unlimited Throughput, At-Least-Once Delivery)</option>' +
-              '<option value="fifo">FIFO (First-In-First-Out, Exactly-Once Processing)</option>' +
-            '</select>' +
+            '<label class="block font-semibold text-gray-700 mb-1">Queue Type</label>' +
+            '<div class="grid grid-cols-2 gap-2">' +
+              '<div onclick="selectSqsType(\'standard\', this)" class="sqs-type-card border-2 border-aws-orange bg-amber-50/50 p-2.5 rounded-lg cursor-pointer shadow-sm transition">' +
+                '<p class="font-bold text-xs text-gray-900">Standard</p>' +
+                '<p class="text-[10px] text-gray-500">Unlimited throughput, at-least-once delivery</p>' +
+              '</div>' +
+              '<div onclick="selectSqsType(\'fifo\', this)" class="sqs-type-card border border-gray-200 bg-white p-2.5 rounded-lg cursor-pointer hover:border-gray-400 transition">' +
+                '<p class="font-bold text-xs text-gray-900">FIFO</p>' +
+                '<p class="text-[10px] text-gray-500">Strict ordering, exactly-once processing</p>' +
+              '</div>' +
+            '</div>' +
+            '<input type="hidden" id="crm_sqs_type" value="standard">' +
           '</div>' +
           '<div>' +
             '<label class="block font-semibold text-gray-700 mb-1">Visibility Timeout (Seconds)</label>' +
@@ -1155,11 +1205,18 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
             '<input type="text" id="crm_sns_name" required placeholder="e.g. user-notifications-topic" class="w-full border border-gray-300 rounded p-2 focus:border-aws-orange focus:outline-none">' +
           '</div>' +
           '<div>' +
-            '<label class="block font-semibold text-gray-700 mb-1">Type</label>' +
-            '<select id="crm_sns_type" class="w-full border border-gray-300 rounded p-2 bg-white focus:outline-none">' +
-              '<option value="standard">Standard (Best-effort ordering, maximum throughput)</option>' +
-              '<option value="fifo">FIFO (Strict message ordering, deduplication)</option>' +
-            '</select>' +
+            '<label class="block font-semibold text-gray-700 mb-1">Topic Type</label>' +
+            '<div class="grid grid-cols-2 gap-2">' +
+              '<div onclick="selectSnsType(\'standard\', this)" class="sns-type-card border-2 border-aws-orange bg-amber-50/50 p-2.5 rounded-lg cursor-pointer shadow-sm transition">' +
+                '<p class="font-bold text-xs text-gray-900">Standard</p>' +
+                '<p class="text-[10px] text-gray-500">Best-effort ordering, max throughput</p>' +
+              '</div>' +
+              '<div onclick="selectSnsType(\'fifo\', this)" class="sns-type-card border border-gray-200 bg-white p-2.5 rounded-lg cursor-pointer hover:border-gray-400 transition">' +
+                '<p class="font-bold text-xs text-gray-900">FIFO</p>' +
+                '<p class="text-[10px] text-gray-500">Strict message ordering</p>' +
+              '</div>' +
+            '</div>' +
+            '<input type="hidden" id="crm_sns_type" value="standard">' +
           '</div>' +
           '<div>' +
             '<label class="block font-semibold text-gray-700 mb-1">Display Name</label>' +
@@ -1175,19 +1232,41 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
             '<input type="text" id="crm_rds_id" required placeholder="e.g. production-postgres-db" class="w-full border border-gray-300 rounded p-2 focus:border-aws-orange focus:outline-none">' +
           '</div>' +
           '<div>' +
-            '<label class="block font-semibold text-gray-700 mb-1">Engine Type</label>' +
-            '<select id="crm_rds_engine" class="w-full border border-gray-300 rounded p-2 bg-white focus:outline-none">' +
-              '<option value="postgres">PostgreSQL 16</option>' +
-              '<option value="mysql">MySQL 8.0</option>' +
-              '<option value="mariadb">MariaDB 10.11</option>' +
-            '</select>' +
+            '<label class="block font-semibold text-gray-700 mb-1">Database Engine</label>' +
+            '<div class="grid grid-cols-3 gap-2">' +
+              '<div onclick="selectRdsEngine(\'postgres\', this)" class="engine-card border-2 border-aws-orange bg-amber-50/50 p-2.5 rounded-lg cursor-pointer shadow-sm text-center transition">' +
+                '<i class="fa-solid fa-database text-blue-600 text-lg"></i>' +
+                '<p class="font-bold text-xs mt-1 text-gray-900">PostgreSQL</p>' +
+                '<span class="text-[9px] text-gray-500">v16</span>' +
+              '</div>' +
+              '<div onclick="selectRdsEngine(\'mysql\', this)" class="engine-card border border-gray-200 bg-white p-2.5 rounded-lg cursor-pointer hover:border-gray-400 text-center transition">' +
+                '<i class="fa-solid fa-server text-orange-600 text-lg"></i>' +
+                '<p class="font-bold text-xs mt-1 text-gray-900">MySQL</p>' +
+                '<span class="text-[9px] text-gray-500">v8.0</span>' +
+              '</div>' +
+              '<div onclick="selectRdsEngine(\'mariadb\', this)" class="engine-card border border-gray-200 bg-white p-2.5 rounded-lg cursor-pointer hover:border-gray-400 text-center transition">' +
+                '<i class="fa-solid fa-cubes text-emerald-600 text-lg"></i>' +
+                '<p class="font-bold text-xs mt-1 text-gray-900">MariaDB</p>' +
+                '<span class="text-[9px] text-gray-500">v10.11</span>' +
+              '</div>' +
+            '</div>' +
+            '<input type="hidden" id="crm_rds_engine" value="postgres">' +
           '</div>' +
           '<div>' +
             '<label class="block font-semibold text-gray-700 mb-1">DB Instance Class</label>' +
-            '<select id="crm_rds_class" class="w-full border border-gray-300 rounded p-2 bg-white focus:outline-none">' +
-              '<option value="db.t3.micro">db.t3.micro — 2 vCPU, 1 GiB RAM (Free tier eligible)</option>' +
-              '<option value="db.t3.small">db.t3.small — 2 vCPU, 2 GiB RAM</option>' +
-            '</select>' +
+            '<div class="grid grid-cols-2 gap-2">' +
+              '<div onclick="selectRdsClass(\'db.t3.micro\', this)" class="rds-class-card border-2 border-aws-orange bg-amber-50/50 p-2 rounded-lg cursor-pointer shadow-sm text-center transition">' +
+                '<p class="font-bold text-xs text-gray-900">db.t3.micro</p>' +
+                '<p class="text-[10px] text-gray-500">2 vCPU, 1 GiB RAM</p>' +
+                '<span class="inline-block bg-green-100 text-green-800 text-[9px] font-bold px-1.5 py-0.5 rounded mt-0.5">Free tier</span>' +
+              '</div>' +
+              '<div onclick="selectRdsClass(\'db.t3.small\', this)" class="rds-class-card border border-gray-200 bg-white p-2 rounded-lg cursor-pointer hover:border-gray-400 text-center transition">' +
+                '<p class="font-bold text-xs text-gray-900">db.t3.small</p>' +
+                '<p class="text-[10px] text-gray-500">2 vCPU, 2 GiB RAM</p>' +
+                '<span class="inline-block text-[9px] text-gray-400 mt-0.5">Standard</span>' +
+              '</div>' +
+            '</div>' +
+            '<input type="hidden" id="crm_rds_class" value="db.t3.micro">' +
           '</div>';
       } else if (service === 'cloudformation') {
         iconEl.className = 'fa-solid fa-layer-group text-orange-600';
@@ -1200,20 +1279,119 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
           '</div>' +
           '<div>' +
             '<label class="block font-semibold text-gray-700 mb-1">Template Blueprint (IaC)</label>' +
-            '<select id="crm_cfn_template" class="w-full border border-gray-300 rounded p-2 bg-white focus:outline-none">' +
-              '<option value="vpc-s3">Production VPC + 2 Subnets + S3 Storage Bucket</option>' +
-              '<option value="ec2-sqs">EC2 Web Worker Service with SQS Dead-Letter Queue</option>' +
-              '<option value="serverless">Serverless Microservice (Lambda Function + DynamoDB Table)</option>' +
-            '</select>' +
+            '<div class="space-y-2">' +
+              '<div onclick="selectCfnTemplate(\'vpc-s3\', this)" class="cfn-tmpl-card border-2 border-aws-orange bg-amber-50/50 p-2.5 rounded-lg cursor-pointer shadow-sm transition">' +
+                '<p class="font-bold text-xs text-gray-900">Production VPC + 2 Subnets + S3</p>' +
+                '<p class="text-[10px] text-gray-500">Complete foundational networking and storage stack</p>' +
+              '</div>' +
+              '<div onclick="selectCfnTemplate(\'ec2-sqs\', this)" class="cfn-tmpl-card border border-gray-200 bg-white p-2.5 rounded-lg cursor-pointer hover:border-gray-400 transition">' +
+                '<p class="font-bold text-xs text-gray-900">EC2 Worker Service + SQS Dead-Letter Queue</p>' +
+                '<p class="text-[10px] text-gray-500">Decoupled queue-driven asynchronous processing</p>' +
+              '</div>' +
+              '<div onclick="selectCfnTemplate(\'serverless\', this)" class="cfn-tmpl-card border border-gray-200 bg-white p-2.5 rounded-lg cursor-pointer hover:border-gray-400 transition">' +
+                '<p class="font-bold text-xs text-gray-900">Serverless Microservice (Lambda + DynamoDB)</p>' +
+                '<p class="text-[10px] text-gray-500">Event-driven compute with NoSQL persistence</p>' +
+              '</div>' +
+            '</div>' +
+            '<input type="hidden" id="crm_cfn_template" value="vpc-s3">' +
           '</div>';
       }
 
       openModal('createResourceModal');
     }
 
+    function selectAmi(val, el) {
+      document.getElementById('crm_ec2_ami').value = val;
+      document.querySelectorAll('.ami-card').forEach(function(c) {
+        c.className = 'ami-card border border-gray-200 bg-white p-2.5 rounded-lg cursor-pointer hover:border-gray-400 hover:shadow-sm text-center transition';
+      });
+      el.className = 'ami-card border-2 border-aws-orange bg-amber-50/50 p-2.5 rounded-lg cursor-pointer shadow-sm text-center transition';
+    }
+
+    function selectType(val, el) {
+      document.getElementById('crm_ec2_type').value = val;
+      document.querySelectorAll('.type-card').forEach(function(c) {
+        c.className = 'type-card border border-gray-200 bg-white p-2 rounded-lg cursor-pointer hover:border-gray-400 hover:shadow-sm text-center transition';
+      });
+      el.className = 'type-card border-2 border-aws-orange bg-amber-50/50 p-2 rounded-lg cursor-pointer shadow-sm text-center transition';
+    }
+
+    function selectS3Region(val, el) {
+      document.getElementById('crm_s3_region').value = val;
+      document.querySelectorAll('.s3-reg-card').forEach(function(c) {
+        c.className = 's3-reg-card border border-gray-200 bg-white p-2 rounded cursor-pointer text-xs font-semibold text-gray-800 hover:border-gray-400';
+      });
+      el.className = 's3-reg-card border-2 border-aws-orange bg-amber-50/50 p-2 rounded cursor-pointer text-xs font-semibold text-gray-800';
+    }
+
+    function selectIamPolicy(val, el) {
+      document.getElementById('crm_iam_policy').value = val;
+      document.querySelectorAll('.iam-pol-card').forEach(function(c) {
+        c.className = 'iam-pol-card border border-gray-200 bg-white p-2 rounded cursor-pointer flex items-center justify-between hover:border-gray-400';
+      });
+      el.className = 'iam-pol-card border-2 border-aws-orange bg-amber-50/50 p-2 rounded cursor-pointer flex items-center justify-between';
+    }
+
+    function selectRdsEngine(val, el) {
+      document.getElementById('crm_rds_engine').value = val;
+      document.querySelectorAll('.engine-card').forEach(function(c) {
+        c.className = 'engine-card border border-gray-200 bg-white p-2.5 rounded-lg cursor-pointer hover:border-gray-400 text-center transition';
+      });
+      el.className = 'engine-card border-2 border-aws-orange bg-amber-50/50 p-2.5 rounded-lg cursor-pointer shadow-sm text-center transition';
+    }
+
+    function selectRdsClass(val, el) {
+      document.getElementById('crm_rds_class').value = val;
+      document.querySelectorAll('.rds-class-card').forEach(function(c) {
+        c.className = 'rds-class-card border border-gray-200 bg-white p-2 rounded-lg cursor-pointer hover:border-gray-400 text-center transition';
+      });
+      el.className = 'rds-class-card border-2 border-aws-orange bg-amber-50/50 p-2 rounded-lg cursor-pointer shadow-sm text-center transition';
+    }
+
+    function selectSqsType(val, el) {
+      document.getElementById('crm_sqs_type').value = val;
+      document.querySelectorAll('.sqs-type-card').forEach(function(c) {
+        c.className = 'sqs-type-card border border-gray-200 bg-white p-2.5 rounded-lg cursor-pointer hover:border-gray-400 transition';
+      });
+      el.className = 'sqs-type-card border-2 border-aws-orange bg-amber-50/50 p-2.5 rounded-lg cursor-pointer shadow-sm transition';
+    }
+
+    function selectSnsType(val, el) {
+      document.getElementById('crm_sns_type').value = val;
+      document.querySelectorAll('.sns-type-card').forEach(function(c) {
+        c.className = 'sns-type-card border border-gray-200 bg-white p-2.5 rounded-lg cursor-pointer hover:border-gray-400 transition';
+      });
+      el.className = 'sns-type-card border-2 border-aws-orange bg-amber-50/50 p-2.5 rounded-lg cursor-pointer shadow-sm transition';
+    }
+
+    function selectCfnTemplate(val, el) {
+      document.getElementById('crm_cfn_template').value = val;
+      document.querySelectorAll('.cfn-tmpl-card').forEach(function(c) {
+        c.className = 'cfn-tmpl-card border border-gray-200 bg-white p-2.5 rounded-lg cursor-pointer hover:border-gray-400 transition';
+      });
+      el.className = 'cfn-tmpl-card border-2 border-aws-orange bg-amber-50/50 p-2.5 rounded-lg cursor-pointer shadow-sm transition';
+    }
+
+    // Global keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeModal('createResourceModal');
+        closeModal('codeModal');
+        const cs = document.getElementById('cloudShellDrawer');
+        if (cs && !cs.classList.contains('hidden')) cs.classList.add('hidden');
+      }
+    });
+
     function handleResourceSubmit(e) {
       e.preventDefault();
       const svc = activeModalService;
+      const btn = document.getElementById('crmSubmitBtn');
+      const btnText = document.getElementById('crmSubmitText');
+      const origHtml = btnText.innerHTML;
+
+      btn.disabled = true;
+      btnText.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Processing...';
+
       let p;
 
       if (svc === 's3') {
@@ -1273,7 +1451,13 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
           loadResources();
         }).catch(err => {
           showToast('Error', err.message || 'Operation failed', 'error');
+        }).finally(() => {
+          btn.disabled = false;
+          btnText.innerHTML = origHtml;
         });
+      } else {
+        btn.disabled = false;
+        btnText.innerHTML = origHtml;
       }
     }
 
@@ -1576,9 +1760,13 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
       document.getElementById('txt-services').innerText = currentLang === 'bn' ? 'সার্ভিসসমূহ' : 'Services';
     }
 
+    let inspectorSource = null;
     function connectInspectorSSE() {
-      const evtSource = new EventSource('/api/stream/inspector');
-      evtSource.onmessage = function(e) {
+      if (inspectorSource) {
+        try { inspectorSource.close(); } catch(e) {}
+      }
+      inspectorSource = new EventSource('/api/stream/inspector');
+      inspectorSource.onmessage = function(e) {
         try {
           const ev = JSON.parse(e.data);
           if (ev.type === 'connected') return;
@@ -1587,8 +1775,11 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
           console.error(err);
         }
       };
-      evtSource.onerror = function() {
-        setTimeout(connectInspectorSSE, 3000);
+      inspectorSource.onerror = function() {
+        if (inspectorSource) {
+          try { inspectorSource.close(); } catch(e) {}
+        }
+        setTimeout(connectInspectorSSE, 5000);
       };
     }
 
@@ -1794,8 +1985,8 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
         history.replaceState(null, '', '/console' + hash);
       }
       handleRoute();
-      connectInspectorSSE();
       loadResources();
+      setTimeout(connectInspectorSSE, 300);
     };
   </script>
 </body>
