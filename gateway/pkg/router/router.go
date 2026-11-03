@@ -31,6 +31,7 @@ func (rt *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if strings.HasPrefix(r.URL.Path, "/console") ||
 		strings.HasPrefix(r.URL.Path, "/api/") ||
 		strings.HasPrefix(r.URL.Path, "/assets/") ||
+		strings.HasPrefix(r.URL.Path, "/static/") ||
 		r.URL.Path == "/favicon.ico" ||
 		(r.URL.Path == "/" && r.Method == http.MethodGet && r.Header.Get("Authorization") == "" && r.Header.Get("X-Amz-Target") == "" && r.URL.Query().Get("Action") == "") {
 		if r.URL.Path == "/" && strings.Contains(r.Header.Get("Accept"), "text/html") {

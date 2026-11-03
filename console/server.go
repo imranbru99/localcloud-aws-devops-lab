@@ -41,6 +41,14 @@ func NewHandler() *ConsoleHandler {
 func (h *ConsoleHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path
 
+	if path == "/static/tailwind.min.js" {
+		w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
+		w.Header().Set("Cache-Control", "public, max-age=31536000")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(TailwindJS))
+		return
+	}
+
 	if strings.HasPrefix(path, "/api/") {
 		h.handleAPI(w, r)
 		return
