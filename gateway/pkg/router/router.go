@@ -42,7 +42,6 @@ func (rt *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	start := time.Now()
 	ctx := context.NewRequestContext(r)
 
-	// Read request body safely
 	var rawBody []byte
 	if r.Body != nil {
 		rawBody, _ = io.ReadAll(r.Body)
@@ -75,7 +74,6 @@ func (rt *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// 5. Lookup Service Adapter
 	adapter, exists := services.Get(ctx.Service)
 	if !exists {
-		// Fallback for S3 path if service wasn't definitively resolved
 		if ctx.Service == "" || ctx.Service == "s3" {
 			adapter, exists = services.Get("s3")
 			ctx.Service = "s3"
@@ -142,7 +140,9 @@ func identifyService(r *http.Request, rawBody []byte) (string, services.Protocol
 	if target != "" {
 		parts := strings.Split(target, ".")
 		svc := strings.ToLower(parts[0])
-		if strings.HasPrefix(svc, "amazonsqs") || strings.HasPrefix(svc, "sqs") { return "sqs", services.ProtocolJSON10 }
+		if strings.HasPrefix(svc, "amazonsqs") || strings.HasPrefix(svc, "sqs") {
+			return "sqs", services.ProtocolJSON10
+		}
 		if strings.HasPrefix(svc, "dynamodb") {
 			return "dynamodb", services.ProtocolJSON10
 		}
@@ -165,7 +165,6 @@ func identifyService(r *http.Request, rawBody []byte) (string, services.Protocol
 	}
 
 	// 2. Authorization header
-	authHeader := r.Header.Get("Authorization")
 	if parsed, err := auth.ParseSigV4(r); err == nil && parsed.Service != "" {
 		switch parsed.Service {
 		case "sts":
@@ -175,9 +174,22 @@ func identifyService(r *http.Request, rawBody []byte) (string, services.Protocol
 		case "s3":
 			return "s3", services.ProtocolRestXML
 		case "sqs":
+			if strings.Contains(r.Header.Get("Content-Type"), "json") {
+				return "sqs", services.ProtocolJSON10
+			}
 			return "sqs", services.ProtocolQuery
 		case "sns":
 			return "sns", services.ProtocolQuery
+		case "ses", "email":
+			return "ses", services.ProtocolQuery
+		case "cloudformation":
+			return "cloudformation", services.ProtocolQuery
+		case "rds":
+			return "rds", services.ProtocolQuery
+		case "route53":
+			return "route53", services.ProtocolRestXML
+		case "events":
+			return "events", services.ProtocolJSON11
 		case "ec2":
 			return "ec2", services.ProtocolEC2
 		case "monitoring":
@@ -191,6 +203,9 @@ func identifyService(r *http.Request, rawBody []byte) (string, services.Protocol
 	path := r.URL.Path
 	if strings.Contains(path, "/functions") {
 		return "lambda", services.ProtocolRestJSON
+	}
+	if strings.Contains(path, "/hostedzone") {
+		return "route53", services.ProtocolRestXML
 	}
 
 	queryAction := r.URL.Query().Get("Action")
@@ -207,6 +222,15 @@ func identifyService(r *http.Request, rawBody []byte) (string, services.Protocol
 			}
 		}
 
+		if strings.Contains(action, "Email") || strings.Contains(action, "Identity") {
+			return "ses", services.ProtocolQuery
+		}
+		if strings.Contains(action, "Stack") {
+			return "cloudformation", services.ProtocolQuery
+		}
+		if strings.Contains(action, "DBInstance") {
+			return "rds", services.ProtocolQuery
+		}
 		if strings.HasPrefix(action, "DescribeInstances") || strings.HasPrefix(action, "RunInstances") ||
 			strings.HasPrefix(action, "TerminateInstances") || strings.HasPrefix(action, "CreateSecurityGroup") ||
 			strings.HasPrefix(action, "DescribeVpcs") {
@@ -229,12 +253,10 @@ func identifyService(r *http.Request, rawBody []byte) (string, services.Protocol
 		}
 	}
 
-	// 4. Default to S3 REST-XML for standard REST calls
 	if r.Header.Get("X-Amz-Content-Sha256") != "" || r.Method == http.MethodPut || r.Method == http.MethodDelete || r.Method == http.MethodHead {
 		return "s3", services.ProtocolRestXML
 	}
 
-	_ = authHeader
 	return "s3", services.ProtocolRestXML
 }
 
@@ -243,13 +265,20 @@ func writeResponse(w http.ResponseWriter, ctx *context.RequestContext, proto ser
 	case services.ProtocolQuery:
 		if xmlBytes, ok := res.([]byte); ok {
 			xmlns := "https://sts.amazonaws.com/doc/2011-06-15/"
-			if ctx.Service == "iam" {
+			switch ctx.Service {
+			case "iam":
 				xmlns = "https://iam.amazonaws.com/doc/2010-05-08/"
-			} else if ctx.Service == "sqs" {
+			case "sqs":
 				xmlns = "http://queue.amazonaws.com/doc/2012-11-05/"
-			} else if ctx.Service == "sns" {
+			case "sns":
 				xmlns = "http://sns.amazonaws.com/doc/2010-03-31/"
-			} else if ctx.Service == "cloudwatch" {
+			case "ses":
+				xmlns = "http://ses.amazonaws.com/doc/2010-12-01/"
+			case "cloudformation":
+				xmlns = "http://cloudformation.amazonaws.com/doc/2010-05-15/"
+			case "rds":
+				xmlns = "http://rds.amazonaws.com/doc/2014-10-31/"
+			case "cloudwatch":
 				xmlns = "http://monitoring.amazonaws.com/doc/2010-08-01/"
 			}
 			protocols.WriteQueryResponse(w, ctx, xmlBytes, xmlns)

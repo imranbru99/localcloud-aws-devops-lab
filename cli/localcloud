@@ -43,9 +43,8 @@ case "$1" in
     fi
     echo "Starting LocalCloud gateway on port 4566..."
     export LOCALCLOUD_DATA_DIR="$DATA_DIR"
-    nohup "$BIN" </dev/null > "$DATA_DIR/gateway.log" 2>&1 &
+    setsid "$BIN" </dev/null > "$DATA_DIR/gateway.log" 2>&1 &
     PID=$!
-    disown $PID 2>/dev/null || true
     echo $PID > "$PID_FILE"
     sleep 1
     if is_running; then

@@ -12,26 +12,32 @@ import (
 	"github.com/imrandev/localcloud/gateway/pkg/context"
 	gatewayIAM "github.com/imrandev/localcloud/gateway/pkg/iam"
 	"github.com/imrandev/localcloud/services"
+	"github.com/imrandev/localcloud/services/ses"
 )
 
 type ConsoleHandler struct {
-	mu sync.RWMutex
+	mu           sync.RWMutex
+	chaosConfig  map[string]interface{}
 }
 
 func NewHandler() *ConsoleHandler {
-	return &ConsoleHandler{}
+	return &ConsoleHandler{
+		chaosConfig: map[string]interface{}{
+			"latency_ms": 0,
+			"simulate_az_outage": false,
+			"throttle_requests": false,
+		},
+	}
 }
 
 func (h *ConsoleHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path
 
-	// API endpoints for console UI
 	if strings.HasPrefix(path, "/api/") {
 		h.handleAPI(w, r)
 		return
 	}
 
-	// Serve Console Single Page Web Application
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(IndexHTML))
@@ -55,6 +61,14 @@ func (h *ConsoleHandler) handleAPI(w http.ResponseWriter, r *http.Request) {
 		h.handleLabCheck(w, r)
 	case "/api/billing":
 		h.handleBilling(w, r)
+	case "/api/mailbox":
+		h.handleMailbox(w, r)
+	case "/api/chaos":
+		h.handleChaos(w, r)
+	case "/api/quizzes":
+		h.handleQuizzes(w, r)
+	case "/api/resourcemap":
+		h.handleResourceMap(w, r)
 	case "/api/reset":
 		h.handleReset(w, r)
 	default:
@@ -100,7 +114,6 @@ func (h *ConsoleHandler) handleStreamInspector(w http.ResponseWriter, r *http.Re
 	ch := cloudtrail.Pipeline.Subscribe()
 	defer cloudtrail.Pipeline.Unsubscribe(ch)
 
-	// Send initial connect ping
 	fmt.Fprintf(w, "data: %s\n\n", `{"type":"connected","msg":"Live API Inspector Stream Connected"}`)
 	flusher.Flush()
 
@@ -170,6 +183,86 @@ func (h *ConsoleHandler) handleBilling(w http.ResponseWriter, r *http.Request) {
 		"well_architected_tip": "In real AWS, use AWS Budgets, CloudWatch Billing Alarms, and Cost Allocation Tags to avoid surprise bills.",
 	}
 	_ = json.NewEncoder(w).Encode(billing)
+}
+
+func (h *ConsoleHandler) handleMailbox(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(ses.GetMailbox())
+}
+
+func (h *ConsoleHandler) handleChaos(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	if r.Method == http.MethodPost {
+		var req map[string]interface{}
+		_ = json.NewDecoder(r.Body).Decode(&req)
+		h.mu.Lock()
+		for k, v := range req {
+			h.chaosConfig[k] = v
+		}
+		h.mu.Unlock()
+	}
+
+	h.mu.RLock()
+	defer h.mu.RUnlock()
+	_ = json.NewEncoder(w).Encode(h.chaosConfig)
+}
+
+func (h *ConsoleHandler) handleQuizzes(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	quizzes := []map[string]interface{}{
+		{
+			"id": "q1",
+			"track": "Cloud Practitioner (CLF-C02)",
+			"question": "Which AWS pillar of the Well-Architected Framework focuses on running workloads effectively and gaining insights into operations?",
+			"options": []string{"Operational Excellence", "Security", "Reliability", "Cost Optimization"},
+			"correct": 0,
+			"explanation": "Operational Excellence focuses on running and monitoring systems to deliver business value and continually improving processes.",
+		},
+		{
+			"id": "q2",
+			"track": "Solutions Architect Associate (SAA-C03)",
+			"question": "An application requires decoupled asynchronous processing where multiple subscriber services receive every order event. Which architecture is best?",
+			"options": []string{"Amazon S3 with Lifecycle Rules", "Amazon SNS Topic with Amazon SQS Queue Fanout", "Single EC2 instance with cron", "Amazon Route 53 Geolocation"},
+			"correct": 1,
+			"explanation": "The SNS topic to multiple SQS queues (fanout pattern) delivers identical broadcast messages to decoupled subscriber queues.",
+		},
+		{
+			"id": "q3",
+			"track": "Security Specialty",
+			"question": "What is the primary difference between a Security Group and a Network Access Control List (NACL)?",
+			"options": []string{
+				"Security Groups are stateless; NACLs are stateful",
+				"Security Groups operate at instance/ENI level and are stateful; NACLs operate at subnet level and are stateless",
+				"NACLs only support Allow rules",
+				"Security Groups support Deny rules explicitly",
+			},
+			"correct": 1,
+			"explanation": "Security Groups are stateful firewalls evaluated at the instance ENI level. NACLs are stateless subnets firewalls evaluating rules in numeric order.",
+		},
+	}
+	_ = json.NewEncoder(w).Encode(quizzes)
+}
+
+func (h *ConsoleHandler) handleResourceMap(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	resMap := map[string]interface{}{
+		"nodes": []map[string]string{
+			{"id": "vpc-1", "label": "VPC (10.0.0.0/16)", "type": "vpc"},
+			{"id": "sub-pub", "label": "Public Subnet (10.0.1.0/24)", "type": "subnet"},
+			{"id": "sub-priv", "label": "Private Subnet (10.0.2.0/24)", "type": "subnet"},
+			{"id": "ec2-app", "label": "EC2 App Server (t3.micro)", "type": "instance"},
+			{"id": "rds-db", "label": "RDS PostgreSQL Database", "type": "database"},
+			{"id": "s3-store", "label": "S3 Data Storage Bucket", "type": "storage"},
+		},
+		"edges": []map[string]string{
+			{"from": "vpc-1", "to": "sub-pub"},
+			{"from": "vpc-1", "to": "sub-priv"},
+			{"from": "sub-pub", "to": "ec2-app"},
+			{"from": "sub-priv", "to": "rds-db"},
+			{"from": "ec2-app", "to": "s3-store"},
+		},
+	}
+	_ = json.NewEncoder(w).Encode(resMap)
 }
 
 func (h *ConsoleHandler) handleReset(w http.ResponseWriter, r *http.Request) {

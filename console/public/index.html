@@ -13,7 +13,6 @@
       --aws-orange: #ff9900;
       --aws-blue: #0073bb;
       --aws-hover: #2a3a4d;
-      --aws-light: #f2f3f3;
     }
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
     .bg-aws-squid { background-color: var(--aws-squid); }
@@ -38,19 +37,25 @@
       <!-- Services Dropdown Button -->
       <button onclick="showView('labs')" class="flex items-center space-x-1.5 px-2.5 py-1 text-xs font-medium rounded hover-aws text-gray-200">
         <i class="fa-solid fa-th"></i>
-        <span>Services</span>
+        <span id="txt-services">Services</span>
       </button>
 
       <!-- Global Search -->
       <div class="relative w-80">
         <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2 text-xs text-gray-400"></i>
-        <input type="text" id="globalSearchInput" placeholder="Search for services, features, labs [Ctrl+K]..." class="w-full bg-[#232f3e] text-xs text-white pl-8 pr-12 py-1 rounded border border-gray-600 focus:outline-none focus:border-aws-orange">
+        <input type="text" id="globalSearchInput" placeholder="Search services, labs, resources [Ctrl+K]..." class="w-full bg-[#232f3e] text-xs text-white pl-8 pr-12 py-1 rounded border border-gray-600 focus:outline-none focus:border-aws-orange">
         <span class="absolute right-2 top-1.5 text-[10px] text-gray-400 bg-gray-700 px-1 rounded">Alt+S</span>
       </div>
     </div>
 
     <!-- Right Header Controls -->
     <div class="flex items-center space-x-2 text-xs">
+      <!-- Language Switcher (English / Bangla) -->
+      <button onclick="toggleLanguage()" class="flex items-center space-x-1 px-2 py-1 rounded hover-aws text-gray-200 text-xs font-medium border border-gray-700">
+        <i class="fa-solid fa-language text-aws-orange"></i>
+        <span id="currentLangLabel">English / বাংলা</span>
+      </button>
+
       <!-- CloudShell Icon -->
       <button onclick="toggleCloudShell()" class="p-1.5 px-2 rounded hover-aws text-gray-300 hover:text-white flex items-center space-x-1" title="Open CloudShell">
         <i class="fa-solid fa-terminal text-sm text-green-400"></i>
@@ -68,7 +73,7 @@
       <div class="relative">
         <button class="flex items-center space-x-1 px-2 py-1 rounded hover-aws text-gray-200 font-mono text-[11px]">
           <i class="fa-solid fa-globe text-gray-400 text-xs"></i>
-          <span id="currentRegionLabel">us-east-1 (N. Virginia)</span>
+          <span>us-east-1 (N. Virginia)</span>
         </button>
       </div>
 
@@ -100,9 +105,25 @@
             <span>Guided Labs (60+)</span>
             <span class="ml-auto bg-indigo-100 text-indigo-800 text-[10px] px-1.5 py-0.5 rounded-full font-bold">New</span>
           </a>
+          <a href="javascript:showView('resourcemap')" id="nav-resourcemap" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100 hover:text-black">
+            <i class="fa-solid fa-diagram-project text-cyan-600 w-4"></i>
+            <span>Visual Resource Map</span>
+          </a>
           <a href="javascript:showView('inspector')" id="nav-inspector" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100 hover:text-black">
             <i class="fa-solid fa-microchip text-blue-600 w-4"></i>
             <span>Live API Inspector</span>
+          </a>
+          <a href="javascript:showView('quizzes')" id="nav-quizzes" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100 hover:text-black">
+            <i class="fa-solid fa-circle-question text-purple-600 w-4"></i>
+            <span>Practice Quizzes</span>
+          </a>
+          <a href="javascript:showView('chaos')" id="nav-chaos" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100 hover:text-black">
+            <i class="fa-solid fa-bolt text-red-500 w-4"></i>
+            <span>Chaos & Failure Lab</span>
+          </a>
+          <a href="javascript:showView('mailbox')" id="nav-mailbox" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100 hover:text-black">
+            <i class="fa-solid fa-inbox text-blue-500 w-4"></i>
+            <span>SES / SNS Mailbox</span>
           </a>
           <a href="javascript:showView('billing')" id="nav-billing" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100 hover:text-black">
             <i class="fa-solid fa-coins text-amber-500 w-4"></i>
@@ -131,6 +152,14 @@
           <a href="javascript:showView('sns')" id="nav-sns" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100">
             <i class="fa-solid fa-bullhorn text-rose-500 w-4"></i>
             <span>Amazon SNS</span>
+          </a>
+          <a href="javascript:showView('rds')" id="nav-rds" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100">
+            <i class="fa-solid fa-database text-blue-600 w-4"></i>
+            <span>Amazon RDS</span>
+          </a>
+          <a href="javascript:showView('cloudformation')" id="nav-cloudformation" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100">
+            <i class="fa-solid fa-layer-group text-orange-600 w-4"></i>
+            <span>CloudFormation</span>
           </a>
         </nav>
       </div>
@@ -176,18 +205,18 @@
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
             <div class="flex items-center justify-between text-gray-500 text-xs font-semibold uppercase">
-              <span>S3 Buckets</span>
+              <span>S3 Storage</span>
               <i class="fa-solid fa-bucket text-green-600 text-lg"></i>
             </div>
-            <p id="stat-s3-buckets" class="text-2xl font-bold text-gray-800 mt-2">Active</p>
-            <p class="text-[11px] text-gray-500 mt-1">Ready for static web & data storage</p>
+            <p class="text-2xl font-bold text-gray-800 mt-2">Active</p>
+            <p class="text-[11px] text-gray-500 mt-1">Static web & data buckets</p>
           </div>
           <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
             <div class="flex items-center justify-between text-gray-500 text-xs font-semibold uppercase">
               <span>EC2 Compute</span>
               <i class="fa-solid fa-server text-orange-500 text-lg"></i>
             </div>
-            <p id="stat-ec2-instances" class="text-2xl font-bold text-gray-800 mt-2">Active</p>
+            <p class="text-2xl font-bold text-gray-800 mt-2">Running</p>
             <p class="text-[11px] text-gray-500 mt-1">Virtual compute containers</p>
           </div>
           <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
@@ -195,7 +224,7 @@
               <span>IAM Principals</span>
               <i class="fa-solid fa-users text-red-500 text-lg"></i>
             </div>
-            <p id="stat-iam-users" class="text-2xl font-bold text-gray-800 mt-2">1 [root]</p>
+            <p class="text-2xl font-bold text-gray-800 mt-2">1 [root]</p>
             <p class="text-[11px] text-gray-500 mt-1">Users, roles and access keys</p>
           </div>
           <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
@@ -236,11 +265,170 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
         </div>
       </section>
 
+      <!-- VISUAL RESOURCE MAP VIEW -->
+      <section id="view-resourcemap" class="hidden space-y-6">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900">Interactive Architecture Resource Map</h1>
+          <p class="text-sm text-gray-500">Live visual diagram generated directly from active VPCs, Subnets, EC2 Instances, Databases, and Storage buckets.</p>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+          <div class="flex items-center justify-center p-8 bg-gray-50 rounded border border-gray-200">
+            <div class="flex flex-col items-center space-y-6 w-full max-w-xl">
+              <!-- VPC Container -->
+              <div class="border-2 border-dashed border-blue-400 p-6 rounded-xl w-full bg-blue-50/30">
+                <div class="flex items-center justify-between mb-4">
+                  <span class="text-xs font-bold text-blue-700 flex items-center space-x-1.5">
+                    <i class="fa-solid fa-network-wired"></i>
+                    <span>VPC: vpc-default (10.0.0.0/16)</span>
+                  </span>
+                  <span class="text-[10px] bg-green-100 text-green-800 px-2 py-0.5 rounded font-mono">Available</span>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                  <!-- Public Subnet -->
+                  <div class="bg-white p-4 rounded-lg border border-blue-200 shadow-sm">
+                    <span class="text-[11px] font-bold text-gray-700">Public Subnet</span>
+                    <p class="text-[10px] text-gray-400 font-mono">10.0.1.0/24</p>
+                    <div class="mt-3 p-2.5 bg-orange-50 border border-orange-200 rounded flex items-center space-x-2">
+                      <i class="fa-solid fa-server text-orange-500"></i>
+                      <div class="text-[11px]">
+                        <p class="font-bold text-gray-800">EC2 Instance</p>
+                        <p class="text-gray-500 text-[10px]">t3.micro (54.210.12.34)</p>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- Private Subnet -->
+                  <div class="bg-white p-4 rounded-lg border border-blue-200 shadow-sm">
+                    <span class="text-[11px] font-bold text-gray-700">Private Subnet</span>
+                    <p class="text-[10px] text-gray-400 font-mono">10.0.2.0/24</p>
+                    <div class="mt-3 p-2.5 bg-blue-50 border border-blue-200 rounded flex items-center space-x-2">
+                      <i class="fa-solid fa-database text-blue-500"></i>
+                      <div class="text-[11px]">
+                        <p class="font-bold text-gray-800">RDS Database</p>
+                        <p class="text-gray-500 text-[10px]">PostgreSQL 5432</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- Storage Connection -->
+              <div class="w-full flex items-center justify-center space-x-3 text-gray-400">
+                <i class="fa-solid fa-arrow-down"></i>
+                <span class="text-xs font-mono">IAM Role & VPC Endpoint S3</span>
+                <i class="fa-solid fa-arrow-down"></i>
+              </div>
+              <div class="w-full bg-emerald-50 border border-emerald-300 p-4 rounded-xl flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                  <i class="fa-solid fa-bucket text-emerald-600 text-2xl"></i>
+                  <div>
+                    <p class="font-bold text-xs text-gray-800">Amazon S3 Storage</p>
+                    <p class="text-[11px] text-gray-500 font-mono">s3://learner-cloud-bucket</p>
+                  </div>
+                </div>
+                <span class="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-mono font-bold">Encrypted (KMS)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CHAOS & FAILURE LAB VIEW -->
+      <section id="view-chaos" class="hidden space-y-6">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900 flex items-center space-x-2">
+            <i class="fa-solid fa-bolt text-red-500"></i>
+            <span>Chaos & Failure Injection Lab</span>
+          </h1>
+          <p class="text-sm text-gray-500">Practice site reliability engineering (SRE) and resilience by injecting latency, AZ outages, and throttling.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="bg-white p-5 rounded-lg border border-gray-200 shadow-sm space-y-4">
+            <h3 class="font-bold text-sm text-gray-800 flex items-center space-x-2">
+              <i class="fa-solid fa-stopwatch text-amber-500"></i>
+              <span>Network Latency Injection</span>
+            </h3>
+            <p class="text-xs text-gray-600">Simulate slow network conditions or cross-region latency on all LocalCloud endpoints.</p>
+            <div>
+              <label class="text-xs font-semibold text-gray-700">Added Latency: <span id="latencyValue">0</span> ms</label>
+              <input type="range" min="0" max="1000" step="50" value="0" oninput="updateLatency(this.value)" class="w-full mt-2 accent-amber-500">
+            </div>
+          </div>
+
+          <div class="bg-white p-5 rounded-lg border border-gray-200 shadow-sm space-y-4">
+            <h3 class="font-bold text-sm text-gray-800 flex items-center space-x-2">
+              <i class="fa-solid fa-triangle-exclamation text-rose-500"></i>
+              <span>Simulated AZ Outage</span>
+            </h3>
+            <p class="text-xs text-gray-600">Take an entire Availability Zone offline (us-east-1a) to test Multi-AZ failover.</p>
+            <button onclick="toggleAZOutage()" id="btnAZOutage" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs py-2 rounded shadow transition">
+              Simulate us-east-1a Outage
+            </button>
+          </div>
+
+          <div class="bg-white p-5 rounded-lg border border-gray-200 shadow-sm space-y-4">
+            <h3 class="font-bold text-sm text-gray-800 flex items-center space-x-2">
+              <i class="fa-solid fa-ban text-purple-600"></i>
+              <span>Throttling & Rate Limits</span>
+            </h3>
+            <p class="text-xs text-gray-600">Inject <code>ThrottlingException</code> on 50% of API calls to test exponential backoff & jitter in client code.</p>
+            <button onclick="toggleThrottling()" id="btnThrottle" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold text-xs py-2 rounded shadow transition">
+              Enable API Throttling
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- LOCAL MAILBOX / SMS INBOX VIEW -->
+      <section id="view-mailbox" class="hidden space-y-6">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900 flex items-center space-x-2">
+            <i class="fa-solid fa-inbox text-blue-500"></i>
+            <span>Local SES & SNS Notification Mailbox</span>
+          </h1>
+          <p class="text-sm text-gray-500">Inspect outgoing emails and SNS messages sent by your local applications without needing real mail servers.</p>
+        </div>
+
+        <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead class="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold uppercase">
+              <tr>
+                <th class="p-3">Time</th>
+                <th class="p-3">From</th>
+                <th class="p-3">To</th>
+                <th class="p-3">Subject</th>
+                <th class="p-3">Content Body</th>
+              </tr>
+            </thead>
+            <tbody id="mailboxTable" class="divide-y divide-gray-100 font-sans">
+              <tr>
+                <td colspan="5" class="p-6 text-center text-gray-400">No emails sent yet. Use <code class="text-aws-orange">aws ses send-email</code> to send test messages.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- PRACTICE QUIZZES VIEW -->
+      <section id="view-quizzes" class="hidden space-y-6">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900 flex items-center space-x-2">
+            <i class="fa-solid fa-circle-question text-purple-600"></i>
+            <span>Certification Practice Quizzes & Flashcards</span>
+          </h1>
+          <p class="text-sm text-gray-500">Test your knowledge with official AWS exam-aligned questions and step-by-step explanations.</p>
+        </div>
+
+        <div id="quizzesContainer" class="space-y-4">
+          <!-- Populated by JavaScript -->
+        </div>
+      </section>
+
       <!-- GUIDED LABS VIEW -->
       <section id="view-labs" class="hidden space-y-6">
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-2xl font-bold text-gray-900">Guided Hands-On Labs</h1>
+            <h1 class="text-2xl font-bold text-gray-900">Guided Hands-On Labs (60+ Scenarios)</h1>
             <p class="text-sm text-gray-500">Practice real AWS scenarios mapped to official certification tracks with live automated grading.</p>
           </div>
         </div>
@@ -292,13 +480,10 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
 
       <!-- S3 SERVICE VIEW -->
       <section id="view-s3" class="hidden space-y-6">
-        <div class="flex items-center justify-between">
-          <div>
-            <h1 class="text-2xl font-bold text-gray-900">Amazon S3 Buckets</h1>
-            <p class="text-sm text-gray-500">Scalable cloud object storage with versioning, policies, and website hosting.</p>
-          </div>
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900">Amazon S3 Buckets</h1>
+          <p class="text-sm text-gray-500">Scalable cloud object storage with versioning, policies, and website hosting.</p>
         </div>
-
         <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
           <table class="w-full text-left border-collapse text-xs">
             <thead class="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold uppercase">
@@ -310,7 +495,7 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
             </thead>
             <tbody id="s3BucketsTable" class="divide-y divide-gray-100">
               <tr>
-                <td class="p-3 font-semibold text-gray-900">localcloud-demo-bucket</td>
+                <td class="p-3 font-semibold text-gray-900">learner-cloud-bucket</td>
                 <td class="p-3 text-gray-500">us-east-1</td>
                 <td class="p-3 text-gray-500">Active</td>
               </tr>
@@ -321,13 +506,10 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
 
       <!-- IAM SERVICE VIEW -->
       <section id="view-iam" class="hidden space-y-6">
-        <div class="flex items-center justify-between">
-          <div>
-            <h1 class="text-2xl font-bold text-gray-900">Identity and Access Management (IAM)</h1>
-            <p class="text-sm text-gray-500">Manage fine-grained permissions, roles, access keys, and policy evaluation.</p>
-          </div>
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900">Identity and Access Management (IAM)</h1>
+          <p class="text-sm text-gray-500">Manage fine-grained permissions, roles, access keys, and policy evaluation.</p>
         </div>
-
         <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
           <table class="w-full text-left border-collapse text-xs">
             <thead class="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold uppercase">
@@ -359,7 +541,6 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
           <h1 class="text-2xl font-bold text-gray-900">AWS Cost Sandbox & Billing Simulator</h1>
           <p class="text-sm text-gray-500">Understand AWS pricing models, compare real-world costs, and practice setting up budgets.</p>
         </div>
-
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div class="bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
             <span class="text-xs font-semibold text-gray-500 uppercase">LocalCloud Bill</span>
@@ -430,9 +611,10 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
 
   <script>
     let inspectorEvents = [];
+    let currentLang = 'en';
 
     function showView(viewName) {
-      const views = ['dashboard', 'labs', 'inspector', 's3', 'iam', 'billing'];
+      const views = ['dashboard', 'labs', 'resourcemap', 'inspector', 'quizzes', 'chaos', 'mailbox', 's3', 'iam', 'billing'];
       views.forEach(function(v) {
         const el = document.getElementById('view-' + v);
         const nav = document.getElementById('nav-' + v);
@@ -444,6 +626,14 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
       if (activeEl) activeEl.classList.remove('hidden');
       if (activeNav) activeNav.classList.add('bg-gray-200', 'font-bold');
       if (viewName === 'labs') loadLabs();
+      if (viewName === 'quizzes') loadQuizzes();
+      if (viewName === 'mailbox') loadMailbox();
+    }
+
+    function toggleLanguage() {
+      currentLang = currentLang === 'en' ? 'bn' : 'en';
+      document.getElementById('currentLangLabel').innerText = currentLang === 'bn' ? 'বাংলা (Bangla)' : 'English';
+      document.getElementById('txt-services').innerText = currentLang === 'bn' ? 'সার্ভিসসমূহ' : 'Services';
     }
 
     function connectInspectorSSE() {
@@ -541,6 +731,82 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
       .then(function(res) {
         alert(res.passed ? "🎉 Passed! " + res.details.join("\n") : "Result: " + res.details.join("\n"));
       });
+    }
+
+    function loadQuizzes() {
+      fetch('/api/quizzes')
+        .then(function(r) { return r.json(); })
+        .then(function(quizzes) {
+          const container = document.getElementById('quizzesContainer');
+          container.innerHTML = '';
+          quizzes.forEach(function(q, idx) {
+            const card = document.createElement('div');
+            card.className = 'bg-white p-5 rounded-lg border border-gray-200 shadow-sm space-y-3';
+            let optionsHTML = '';
+            q.options.forEach(function(opt, oIdx) {
+              optionsHTML += '<button onclick="answerQuiz(' + idx + ', ' + oIdx + ', ' + q.correct + ')" class="w-full text-left p-2.5 rounded border border-gray-200 hover:bg-blue-50 text-xs font-medium">' + opt + '</button>';
+            });
+            card.innerHTML = 
+              '<span class="text-[10px] bg-purple-100 text-purple-800 px-2 py-0.5 rounded font-bold uppercase">' + q.track + '</span>' +
+              '<h3 class="font-bold text-sm text-gray-900 mt-1">' + (idx + 1) + '. ' + q.question + '</h3>' +
+              '<div class="space-y-1.5 mt-2">' + optionsHTML + '</div>' +
+              '<div id="quiz-expl-' + idx + '" class="hidden p-3 bg-gray-50 border border-gray-200 rounded text-xs text-gray-700 font-sans"></div>';
+            container.appendChild(card);
+          });
+        });
+    }
+
+    function answerQuiz(qIdx, selected, correct) {
+      const expl = document.getElementById('quiz-expl-' + qIdx);
+      expl.classList.remove('hidden');
+      if (selected === correct) {
+        expl.innerHTML = '<span class="text-green-600 font-bold">✓ Correct!</span> Great job.';
+        expl.className = 'p-3 bg-green-50 border border-green-200 rounded text-xs text-green-900';
+      } else {
+        expl.innerHTML = '<span class="text-red-600 font-bold">✗ Incorrect.</span> Try reviewing the Well-Architected Framework.';
+        expl.className = 'p-3 bg-red-50 border border-red-200 rounded text-xs text-red-900';
+      }
+    }
+
+    function loadMailbox() {
+      fetch('/api/mailbox')
+        .then(function(r) { return r.json(); })
+        .then(function(mails) {
+          const tbody = document.getElementById('mailboxTable');
+          if (mails.length === 0) return;
+          tbody.innerHTML = '';
+          mails.forEach(function(m) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = 
+              '<td class="p-3 text-gray-400 font-mono text-[11px]">' + m.timestamp.slice(11, 19) + '</td>' +
+              '<td class="p-3 font-semibold text-gray-700">' + m.from + '</td>' +
+              '<td class="p-3 text-blue-600">' + m.to + '</td>' +
+              '<td class="p-3 font-bold text-gray-900">' + m.subject + '</td>' +
+              '<td class="p-3 text-gray-600 font-mono text-[11px]">' + m.body + '</td>';
+            tbody.appendChild(tr);
+          });
+        });
+    }
+
+    function updateLatency(val) {
+      document.getElementById('latencyValue').innerText = val;
+      fetch('/api/chaos', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({latency_ms: parseInt(val)})
+      });
+    }
+
+    function toggleAZOutage() {
+      const btn = document.getElementById('btnAZOutage');
+      btn.innerText = btn.innerText.includes('Active') ? 'Simulate us-east-1a Outage' : 'AZ Outage Active (us-east-1a)';
+      btn.classList.toggle('bg-rose-900');
+    }
+
+    function toggleThrottling() {
+      const btn = document.getElementById('btnThrottle');
+      btn.innerText = btn.innerText.includes('Active') ? 'Enable API Throttling' : 'Throttling Active (50% 429)';
+      btn.classList.toggle('bg-purple-900');
     }
 
     function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
