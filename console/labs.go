@@ -2,6 +2,8 @@ package console
 
 import (
 	"github.com/imrandev/localcloud/services"
+	"github.com/imrandev/localcloud/services/rds"
+	"github.com/imrandev/localcloud/services/s3"
 )
 
 type Lab struct {
@@ -28,6 +30,35 @@ type LabCheckResult struct {
 
 func GetAllLabs() []Lab {
 	return []Lab{
+		// 0. Full-Stack AWS Web App
+		{
+			ID:        "lab-wordpress-aws",
+			Title:     "Deploy Scalable WordPress on AWS (EC2 + RDS MySQL + S3)",
+			Track:     "Solutions Architect Associate",
+			Level:     "Intermediate",
+			Duration:  "25 mins",
+			Objective: "Provision a multi-tier WordPress site: an EC2 web server, an RDS MySQL relational database, and an S3 bucket for media offload.",
+			Diagram:   "User ──► EC2 (WordPress :8080) ──► RDS MySQL (:3306)\n                 └──► S3 Bucket (wp-media-bucket)",
+			ConsolePath: []string{
+				"1. Go to Amazon S3 Console and create bucket 'wp-media-bucket'.",
+				"2. Go to Amazon RDS Console and create database 'wp-database' (Engine: MySQL).",
+				"3. Go to Amazon EC2 Console and launch a t3.micro instance.",
+				"4. Run ./samples/wordpress/deploy.sh to launch the WordPress stack.",
+				"5. Visit http://localhost:8080 to complete the WordPress web wizard.",
+			},
+			CLIPath: []string{
+				"aws --endpoint-url http://localhost:4566 s3 mb s3://wp-media-bucket",
+				"aws --endpoint-url http://localhost:4566 rds create-db-instance --db-instance-identifier wp-database --db-instance-class db.t3.micro --engine mysql",
+				"aws --endpoint-url http://localhost:4566 ec2 run-instances --image-id ami-0c55b159cbfafe1f0 --instance-type t3.micro",
+				"./samples/wordpress/deploy.sh",
+			},
+			Hints: []string{
+				"In real AWS, database passwords and credentials are stored in AWS Secrets Manager.",
+				"Use S3 Uploads plugin with endpoint http://localhost:4566 to offload media.",
+			},
+			Solution:    "S3 bucket 'wp-media-bucket' and RDS instance 'wp-database' created, and WordPress running on port 8080.",
+			RealAWSCost: "$38.50 / month (EC2 t3.micro + RDS db.t3.micro + S3).",
+		},
 		// 1. Storage & Hosting
 		{
 			ID:        "lab-s3-website",
@@ -254,6 +285,39 @@ func CheckLab(labID string) LabCheckResult {
 	}
 
 	switch labID {
+	case "lab-wordpress-aws":
+		buckets := s3.GetBuckets()
+		hasBucket := false
+		for _, b := range buckets {
+			if b.Name == "wp-media-bucket" {
+				hasBucket = true
+				break
+			}
+		}
+		if hasBucket {
+			res.Details = append(res.Details, "[PASS] Amazon S3 media offload bucket (wp-media-bucket) exists")
+			res.Score += 50
+		} else {
+			res.Details = append(res.Details, "[FAIL] Missing S3 bucket 'wp-media-bucket'. Create it using: aws s3 mb s3://wp-media-bucket")
+		}
+
+		dbs := rds.GetDBInstances()
+		hasDB := false
+		for _, d := range dbs {
+			if d.DBInstanceIdentifier == "wp-database" {
+				hasDB = true
+				break
+			}
+		}
+		if hasDB {
+			res.Details = append(res.Details, "[PASS] Amazon RDS MySQL instance (wp-database) exists")
+			res.Score += 50
+		} else {
+			res.Details = append(res.Details, "[FAIL] Missing RDS database 'wp-database'. Provision it using: aws rds create-db-instance")
+		}
+
+		res.Passed = (res.Score == 100)
+		return res
 	case "lab-s3-website":
 		_, ok := services.Get("s3")
 		if ok {
