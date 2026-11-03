@@ -1,0 +1,812 @@
+{
+  "version": 1,
+  "modules": [
+    {
+      "id": "foundations",
+      "title": "Cloud foundations & your first environment",
+      "stage": "Foundations",
+      "topics": [
+        "Regions and Availability Zones",
+        "Shared responsibility",
+        "IaaS, PaaS and SaaS",
+        "AWS CLI, SDKs and profiles",
+        "ARNs and endpoints",
+        "Account safety and budgets"
+      ],
+      "lesson": "A Region is a geographic deployment boundary; Availability Zones provide separate failure domains within it. Managed services shift operational work to AWS but you still own data, access and configuration. LocalCloud implements selected APIs on one machine: an EC2 record is not a real VM and two simulated zones do not provide fault isolation. Start with dummy credentials and an explicit local endpoint. For real AWS, use a separate sandbox account, MFA and a budget; budget alerts are not a hard spending limit.",
+      "exercise": [
+        "Run: AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test AWS_DEFAULT_REGION=us-east-1 aws --endpoint-url http://localhost:4566 sts get-caller-identity",
+        "Identify the account, principal ARN and Region in the response and configuration.",
+        "Draw which responsibilities belong to AWS and which belong to you for EC2 versus RDS."
+      ],
+      "evidence": "Save the identity output and a responsibility table. Never include real credentials.",
+      "question": "Does a local EC2 API response prove a real VM is running?",
+      "options": [
+        "Yes, always",
+        "No, inspect the simulator coverage",
+        "Only when it has an ARN"
+      ],
+      "answer": 1,
+      "explanation": "API metadata and actual compute execution are separate capabilities.",
+      "mode": "Local API",
+      "lab": "",
+      "hours": 4,
+      "prerequisites": []
+    },
+    {
+      "id": "linux",
+      "title": "Linux, networking & scripting",
+      "stage": "Foundations",
+      "topics": [
+        "Files and permissions",
+        "Processes and systemd",
+        "Bash and Python",
+        "DNS, TCP/IP, HTTP and TLS",
+        "Ports and sockets",
+        "Logs and troubleshooting"
+      ],
+      "lesson": "Cloud debugging starts with the operating system. Resolve the hostname, check a route, connect to a port, then inspect HTTP status and application logs. A timeout suggests a different failure than a refused connection or an HTTP 403. Unix permissions protect files; environment variables can still leak through logs and process inspection. Scripts should validate input, fail visibly and be safe to rerun.",
+      "exercise": [
+        "On your workstation run uname -a, id and pwd; explain each output.",
+        "Use curl -i http://localhost:4566/console and identify status, headers and body.",
+        "Write a Bash health check that returns nonzero on a failed HTTP request and test it against an unused local port."
+      ],
+      "evidence": "Commit the health check and record successful and failed runs.",
+      "question": "Which evidence shows an application answered an HTTP request?",
+      "options": [
+        "A DNS record alone",
+        "An HTTP response status",
+        "A route table alone"
+      ],
+      "answer": 1,
+      "explanation": "An HTTP status means an HTTP peer responded; DNS and routing only establish earlier layers.",
+      "mode": "Design + external tools",
+      "lab": "",
+      "hours": 4,
+      "prerequisites": [
+        "foundations"
+      ]
+    },
+    {
+      "id": "git",
+      "title": "Git & team delivery practices",
+      "stage": "Foundations",
+      "topics": [
+        "Commits and branches",
+        "Pull requests and review",
+        "Merge conflicts",
+        "Semantic versions",
+        "Trunk-based development",
+        "Incident-friendly changes"
+      ],
+      "lesson": "Small reviewable commits make changes easier to understand and revert. A pull request should state the behavior, test evidence and rollout plan. Build artifacts should be tied to a commit, not a mutable branch name. Resolve conflicts by understanding both changes, then test the combined behavior. Never commit credentials; removing a secret from the latest file does not remove it from history.",
+      "exercise": [
+        "Create a practice repository and a feature branch.",
+        "Make conflicting edits on two branches, merge and resolve the conflict.",
+        "Revert a faulty commit and explain the difference between revert and resetting shared history."
+      ],
+      "evidence": "Keep a reviewed change, conflict resolution and revert in your practice repository.",
+      "question": "Which action preserves shared history when undoing a change?",
+      "options": [
+        "Delete the repository",
+        "Force reset the shared branch",
+        "Revert the commit"
+      ],
+      "answer": 2,
+      "explanation": "A revert adds a new commit that reverses a previous change.",
+      "mode": "Design + external tools",
+      "lab": "",
+      "hours": 4,
+      "prerequisites": [
+        "linux"
+      ]
+    },
+    {
+      "id": "iam",
+      "title": "Identity, access & account governance",
+      "stage": "AWS core",
+      "topics": [
+        "IAM users, roles and policies",
+        "STS and temporary credentials",
+        "Identity Center and federation",
+        "Organizations, OUs and SCPs",
+        "Permission boundaries",
+        "CloudTrail and access analysis"
+      ],
+      "lesson": "A role has a trust policy describing who may assume it and permission policies describing what its sessions may do. Explicit denies override allows; organizational guardrails restrict access rather than grant it. Prefer federation and short-lived sessions for people and workloads. Troubleshoot access by checking the actual principal, action, resource, conditions and applicable policy layers. The local policy simulator is educational and does not reproduce all AWS authorization behavior.",
+      "exercise": [
+        "Write a policy allowing GetObject only on arn:aws:s3:::training-assets/*.",
+        "Use the console IAM simulator to compare GetObject and DeleteObject; record the decisions.",
+        "Design separate developer, deployment and audit roles, including their trust relationships."
+      ],
+      "evidence": "Provide the policy, two evaluation results and a role diagram.",
+      "question": "Does an SCP by itself grant a role permission?",
+      "options": [
+        "No, it constrains available permissions",
+        "Yes, it replaces IAM",
+        "Yes, if applied to the root OU"
+      ],
+      "answer": 0,
+      "explanation": "SCPs define permission guardrails; IAM permissions still need to allow the action.",
+      "mode": "Local API + design",
+      "lab": "lab-iam-least-privilege",
+      "hours": 4,
+      "prerequisites": [
+        "git"
+      ]
+    },
+    {
+      "id": "network",
+      "title": "VPC networking from packet to application",
+      "stage": "AWS core",
+      "topics": [
+        "CIDR and subnets",
+        "Route tables, IGW and NAT",
+        "Security groups and NACLs",
+        "VPC endpoints and PrivateLink",
+        "Peering and Transit Gateway",
+        "VPN, Direct Connect and DNS"
+      ],
+      "lesson": "A subnet is public when its route table routes to an internet gateway; an instance also needs appropriate addressing and security to reach the internet that way. NAT provides outbound translation for private IPv4 workloads, not unsolicited inbound access. Security groups are stateful; NACL rules must account for both directions. Prefer service endpoints where appropriate, and document DNS resolution as well as routes. Local VPC metadata does not implement packet forwarding.",
+      "exercise": [
+        "Draw two Availability Zones with public load-balancer subnets and private application/database subnets.",
+        "Trace an HTTPS request and an outbound package download, marking every route and firewall boundary.",
+        "Diagnose a timeout using a checklist: DNS, route, security group, NACL, listener and application."
+      ],
+      "evidence": "Submit a CIDR plan, traffic diagram and troubleshooting checklist.",
+      "question": "What makes a subnet public?",
+      "options": [
+        "Its name contains public",
+        "A route to an internet gateway",
+        "A security group allows port 80"
+      ],
+      "answer": 1,
+      "explanation": "The associated route table determines the subnet route to the internet gateway.",
+      "mode": "Design + external tools",
+      "lab": "",
+      "hours": 4,
+      "prerequisites": [
+        "iam"
+      ]
+    },
+    {
+      "id": "compute",
+      "title": "EC2, load balancing & scaling",
+      "stage": "AWS core",
+      "topics": [
+        "AMIs and instance families",
+        "EBS and instance store",
+        "User data and SSM Session Manager",
+        "ALB and NLB",
+        "Auto Scaling and health checks",
+        "Spot, reservations and Savings Plans"
+      ],
+      "lesson": "Separate compute from durable state so failed instances can be replaced. An AMI supplies the initial filesystem; user data bootstraps configuration. Load balancer health checks and scaling policies solve different problems: routing to healthy targets versus adjusting capacity. Scale on a metric that reflects demand and test warm-up and termination behavior. Local EC2 operations model lifecycle metadata, not full EC2 execution.",
+      "exercise": [
+        "Use the existing EC2 lab to inspect instance metadata.",
+        "Design a two-zone Auto Scaling group behind an ALB, including readiness checks and a minimum healthy capacity.",
+        "Explain what happens to uploads and user sessions when an instance is terminated."
+      ],
+      "evidence": "Attach the design and a replacement/rollback runbook.",
+      "question": "Where should durable uploads live for replaceable web instances?",
+      "options": [
+        "Only on instance store",
+        "In process memory",
+        "In durable shared storage such as S3"
+      ],
+      "answer": 2,
+      "explanation": "External durable storage lets instances be replaced without losing application data.",
+      "mode": "Local API + design",
+      "lab": "lab-ec2-keypair",
+      "hours": 4,
+      "prerequisites": [
+        "network"
+      ]
+    },
+    {
+      "id": "storage",
+      "title": "S3, filesystems & data protection",
+      "stage": "AWS core",
+      "topics": [
+        "Buckets and objects",
+        "Versioning and lifecycle",
+        "Encryption and bucket policies",
+        "EFS and FSx",
+        "Replication and AWS Backup",
+        "Storage classes and retention"
+      ],
+      "lesson": "S3 stores objects addressed by bucket and key, not files on a mounted disk. Versioning retains object versions but requires a lifecycle and deletion strategy. Encryption protects data at rest; permissions still govern who can read it. Compare object, block and shared-file storage based on application access patterns. A backup is useful only if restore procedures work and meet recovery targets.",
+      "exercise": [
+        "Create a local bucket and upload a small text file with the S3 lab.",
+        "Download it and compare contents; record the object key and request in the inspector.",
+        "Design a production versioning, lifecycle, encryption and restore policy; distinguish it from locally supported APIs."
+      ],
+      "evidence": "Keep upload/download evidence and a restore checklist.",
+      "question": "Does encryption replace access control?",
+      "options": [
+        "Yes",
+        "No",
+        "Only for public buckets"
+      ],
+      "answer": 1,
+      "explanation": "Authorized readers can decrypt data; access control remains necessary.",
+      "mode": "Local API + design",
+      "lab": "lab-s3-website",
+      "hours": 4,
+      "prerequisites": [
+        "compute"
+      ]
+    },
+    {
+      "id": "database",
+      "title": "Relational, NoSQL & caching decisions",
+      "stage": "AWS core",
+      "topics": [
+        "RDS and Aurora",
+        "Multi-AZ versus read replicas",
+        "DynamoDB keys and indexes",
+        "Transactions and consistency",
+        "ElastiCache",
+        "Backup, migration and DMS"
+      ],
+      "lesson": "Choose a database from query and consistency requirements. Relational databases support joins and transactions; DynamoDB designs begin with access patterns and partition keys. A hot partition can bottleneck an otherwise scalable table. RDS Multi-AZ targets availability while read replicas target read scaling, subject to engine capabilities. Cache invalidation and expiry must be explicit; a cache should not silently become the only copy of important data.",
+      "exercise": [
+        "Complete the Products table CRUD lab and read the item back.",
+        "List three application queries and propose partition/sort keys and indexes for them.",
+        "Compare an order transaction in RDS with a DynamoDB design, including failure recovery."
+      ],
+      "evidence": "Save read/write output and a database decision record.",
+      "question": "What should guide a DynamoDB key design?",
+      "options": [
+        "The shortest attribute name",
+        "Known access patterns and distribution",
+        "The UI color scheme"
+      ],
+      "answer": 1,
+      "explanation": "Keys must support queries and spread load across partitions.",
+      "mode": "Local API + design",
+      "lab": "lab-dynamodb-crud",
+      "hours": 4,
+      "prerequisites": [
+        "storage"
+      ]
+    },
+    {
+      "id": "events",
+      "title": "Messaging & event-driven systems",
+      "stage": "AWS core",
+      "topics": [
+        "SQS and dead-letter queues",
+        "SNS fanout",
+        "EventBridge rules",
+        "Retries and backoff",
+        "Idempotency and ordering",
+        "Step Functions workflows"
+      ],
+      "lesson": "Queues absorb bursts and decouple producers from consumers. Standard queue delivery can repeat messages; an idempotent consumer records a business key so a retry does not repeat a charge. Acknowledge after processing succeeds. Visibility timeout must allow processing time; poison messages need a dead-letter workflow and an operator-owned redrive process. Events report facts while commands request work.",
+      "exercise": [
+        "Create the order-processing queue using the lab and send an order ID.",
+        "Receive the message, record its receipt handle and delete it after successful processing.",
+        "Design duplicate detection and a dead-letter redrive procedure; test the logic with the same order twice in a local script."
+      ],
+      "evidence": "Show message lifecycle output and prove a duplicate produces only one business effect.",
+      "question": "When should a worker acknowledge a message?",
+      "options": [
+        "Before processing",
+        "After successful processing",
+        "As soon as the queue is created"
+      ],
+      "answer": 1,
+      "explanation": "Acknowledging after success allows failed work to be retried.",
+      "mode": "Local API + design",
+      "lab": "lab-sqs-decoupling",
+      "hours": 4,
+      "prerequisites": [
+        "database"
+      ]
+    },
+    {
+      "id": "serverless",
+      "title": "Serverless APIs & orchestration",
+      "stage": "AWS core",
+      "topics": [
+        "Lambda execution model",
+        "API Gateway",
+        "Concurrency and throttling",
+        "Cold starts and packaging",
+        "Step Functions",
+        "Cognito and application auth"
+      ],
+      "lesson": "A serverless function should not depend on durable in-memory state. Validate inputs, bound downstream calls and make retries safe. API authentication, authorization and throttling are separate controls. Reserved concurrency can protect downstream systems but may cause throttling. Local Lambda invocation is simplified; validating actual code execution, runtime behavior and managed triggers requires external tooling or AWS.",
+      "exercise": [
+        "Write and unit-test a pure order validation function locally.",
+        "Use the Lambda lab to inspect API metadata and compare the response with actual local function execution.",
+        "Draw API Gateway to Lambda to DynamoDB, with authentication, errors, retries and observability."
+      ],
+      "evidence": "Provide tests and a diagram distinguishing simulated APIs from real execution.",
+      "question": "Can a function rely on in-memory state surviving every invocation?",
+      "options": [
+        "No",
+        "Yes",
+        "Only when written in Python"
+      ],
+      "answer": 0,
+      "explanation": "Execution environments are reused opportunistically and may be replaced.",
+      "mode": "Local API + external tools",
+      "lab": "lab-lambda-serverless",
+      "hours": 4,
+      "prerequisites": [
+        "events"
+      ]
+    },
+    {
+      "id": "edge",
+      "title": "DNS, content delivery & edge security",
+      "stage": "AWS core",
+      "topics": [
+        "Route 53 records and routing",
+        "Health checks and failover",
+        "CloudFront caching",
+        "ACM and TLS",
+        "WAF and Shield",
+        "Origin access and invalidation"
+      ],
+      "lesson": "DNS points clients toward endpoints; it is not an HTTP proxy. Cache keys determine which requests share a cached response. Including too much reduces cache hits; omitting user-specific dimensions can expose personalized content. Protect the origin as well as the edge, and plan certificate renewal and DNS ownership. DNS failover is affected by caches and TTLs.",
+      "exercise": [
+        "Draw a private S3 origin behind CloudFront with HTTPS.",
+        "Define a cache policy for static assets and a separate policy for authenticated API responses.",
+        "Write a rollout plan using versioned asset names and explain rollback without waiting for cache expiry."
+      ],
+      "evidence": "Deliver a DNS/TLS diagram and cache policy review.",
+      "question": "Should personalized responses share a public cache key?",
+      "options": [
+        "Always",
+        "No, isolate or disable caching appropriately",
+        "Only for large responses"
+      ],
+      "answer": 1,
+      "explanation": "A shared cache entry can leak one user\u2019s content to another.",
+      "mode": "Design + external tools",
+      "lab": "",
+      "hours": 4,
+      "prerequisites": [
+        "serverless"
+      ]
+    },
+    {
+      "id": "containers",
+      "title": "Docker, registries & ECS",
+      "stage": "Delivery",
+      "topics": [
+        "Images and layers",
+        "Multi-stage builds",
+        "ECR and image scanning",
+        "ECS tasks and services",
+        "Fargate versus EC2",
+        "Health checks and secrets"
+      ],
+      "lesson": "An image packages an application and dependencies; a container is a running instance. Use a small runtime image, a non-root user and immutable image digests for reproducible deployments. Keep secrets outside image layers. ECS services maintain task counts and replace failed tasks; task and execution roles serve different purposes. LocalCloud does not run ECS or ECR.",
+      "exercise": [
+        "Build a small HTTP application with a multi-stage Dockerfile on your workstation.",
+        "Run it as a non-root user with a health endpoint and stop it gracefully.",
+        "Write an ECS task/service design with resource limits, log configuration and separate roles."
+      ],
+      "evidence": "Save Dockerfile, local health-check output and an ECS deployment checklist.",
+      "question": "Which identifier pins an exact container image?",
+      "options": [
+        "latest tag",
+        "A branch name",
+        "An image digest"
+      ],
+      "answer": 2,
+      "explanation": "A content digest identifies the exact image rather than a movable tag.",
+      "mode": "Design + external tools",
+      "lab": "",
+      "hours": 4,
+      "prerequisites": [
+        "edge"
+      ]
+    },
+    {
+      "id": "kubernetes",
+      "title": "Kubernetes, EKS & GitOps",
+      "stage": "Delivery",
+      "topics": [
+        "Pods and Deployments",
+        "Services and Ingress",
+        "ConfigMaps and Secrets",
+        "Requests, limits and probes",
+        "Helm and Kustomize",
+        "EKS identity, networking and upgrades",
+        "Argo CD and Flux"
+      ],
+      "lesson": "Kubernetes reconciles desired state using controllers. Readiness determines whether traffic reaches a pod; liveness determines whether it should restart. Resource requests influence scheduling while limits constrain usage. GitOps adds reconciliation from reviewed declarative configuration. EKS supplies a managed control plane, but workload policies, node lifecycle and application reliability still need ownership.",
+      "exercise": [
+        "Use an external local cluster such as kind to deploy your container with two replicas.",
+        "Add readiness probes and resource requests; delete one pod and observe replacement.",
+        "Change the image through a reviewed manifest and rehearse rollout undo; document how production GitOps would reconcile the change."
+      ],
+      "evidence": "Provide manifests and evidence of self-healing and rollback.",
+      "question": "Which probe removes an unready pod from service traffic?",
+      "options": [
+        "Readiness",
+        "Liveness only",
+        "A Git commit"
+      ],
+      "answer": 0,
+      "explanation": "Readiness controls endpoint eligibility without necessarily restarting the container.",
+      "mode": "Design + external tools",
+      "lab": "",
+      "hours": 4,
+      "prerequisites": [
+        "containers"
+      ]
+    },
+    {
+      "id": "iac",
+      "title": "Infrastructure as code",
+      "stage": "Delivery",
+      "topics": [
+        "Terraform and OpenTofu",
+        "Providers, modules and variables",
+        "State, locking and drift",
+        "CloudFormation and CDK",
+        "Change sets and plans",
+        "Ansible configuration management"
+      ],
+      "lesson": "Infrastructure code expresses desired resources; state maps declarations to real objects. Protect state because it can contain secrets. Review plans before applying, use remote state with appropriate locking in a shared environment and separate environments deliberately. Modules should have clear inputs and ownership. Local provider compatibility is partial, so test each resource against the coverage matrix before using it in a lab.",
+      "exercise": [
+        "Write a small S3 configuration for an external Terraform/OpenTofu installation, using dummy credentials and explicit LocalCloud endpoints.",
+        "Inspect the plan before any apply; confirm all endpoints remain local and record unsupported calls if encountered.",
+        "Design remote state access, locking, drift detection and a reviewed teardown process for real AWS."
+      ],
+      "evidence": "Submit configuration, plan output and a state recovery runbook.",
+      "question": "Why is shared state locking useful?",
+      "options": [
+        "It encrypts every object",
+        "It prevents conflicting concurrent state changes",
+        "It makes reviews unnecessary"
+      ],
+      "answer": 1,
+      "explanation": "Locking coordinates state mutation; it does not replace security or review.",
+      "mode": "Design + external tools",
+      "lab": "",
+      "hours": 4,
+      "prerequisites": [
+        "kubernetes"
+      ]
+    },
+    {
+      "id": "cicd",
+      "title": "CI/CD from commit to safe release",
+      "stage": "Delivery",
+      "topics": [
+        "GitHub Actions and Jenkins",
+        "CodeBuild and CodePipeline",
+        "OIDC federation",
+        "Tests and security gates",
+        "Artifacts and provenance",
+        "Blue/green, canary and rollback"
+      ],
+      "lesson": "CI checks each change and produces a versioned artifact. Delivery promotes the same artifact through environments with evidence and approvals; deployment changes live traffic. Use short-lived identity federation instead of static cloud keys. A successful build does not prove a healthy release: observe error rate and latency, then stop or roll back when thresholds fail. Database migrations must preserve compatibility during mixed-version rollout.",
+      "exercise": [
+        "Create a pipeline in a practice repository that tests your app and builds a container.",
+        "Record the commit and image digest; design environment approval and narrowly scoped OIDC trust conditions.",
+        "Write a canary promotion rule and trigger rollback with a deliberately failing health check locally."
+      ],
+      "evidence": "Save pipeline YAML, build output and rollback evidence.",
+      "question": "What should be promoted from staging to production?",
+      "options": [
+        "A fresh untested rebuild",
+        "The same verified artifact digest",
+        "Whatever latest resolves to"
+      ],
+      "answer": 1,
+      "explanation": "Promoting the same artifact preserves the validation evidence from staging.",
+      "mode": "Design + external tools",
+      "lab": "",
+      "hours": 4,
+      "prerequisites": [
+        "iac"
+      ]
+    },
+    {
+      "id": "observability",
+      "title": "Monitoring, tracing & SRE",
+      "stage": "Operations",
+      "topics": [
+        "CloudWatch metrics, logs and alarms",
+        "OpenTelemetry and tracing",
+        "Prometheus and Grafana",
+        "SLIs, SLOs and error budgets",
+        "Alert routing and runbooks",
+        "DORA delivery metrics"
+      ],
+      "lesson": "Metrics summarize behavior, logs describe events and traces connect work across services. Start from user outcomes: successful requests and acceptable latency. An SLO defines a target over a window, and the error budget quantifies tolerated failure. Alert on actionable symptoms with an owner and runbook. Avoid logging secrets or unbounded high-cardinality labels. Local metrics APIs do not provide the full CloudWatch monitoring platform.",
+      "exercise": [
+        "Instrument the local app with request count, failures and duration.",
+        "Define a 99.9% availability SLO over 30 days and calculate the allowed failed-request budget for one million requests.",
+        "Write a high-error-rate alert with an investigation and rollback runbook."
+      ],
+      "evidence": "Provide metric samples, the budget calculation and one actionable alert.",
+      "question": "For one million requests, how many failures fit a 99.9% target?",
+      "options": [
+        "10",
+        "1,000",
+        "100,000"
+      ],
+      "answer": 1,
+      "explanation": "0.1% of one million is 1,000; time-based SLOs use a different denominator.",
+      "mode": "Design + external tools",
+      "lab": "",
+      "hours": 4,
+      "prerequisites": [
+        "cicd"
+      ]
+    },
+    {
+      "id": "security",
+      "title": "DevSecOps & threat detection",
+      "stage": "Operations",
+      "topics": [
+        "KMS and envelope encryption",
+        "Secrets Manager and Parameter Store",
+        "GuardDuty, Security Hub and Inspector",
+        "AWS Config and audit trails",
+        "Dependency scans and SBOMs",
+        "Threat modeling and supply chain"
+      ],
+      "lesson": "Security spans design, code, delivery and operations. Threat modeling identifies assets, trust boundaries and abuse cases before selecting controls. Rotate secrets and restrict both retrieval permissions and where secrets are exposed. Encryption key policies are part of the authorization model. Scanning provides signals that need triage; passing a scanner does not establish that an application is secure.",
+      "exercise": [
+        "Draw trust boundaries for the order API and list three abuse cases.",
+        "Use the KMS lab to explore encryption APIs with non-sensitive sample data.",
+        "Add dependency scanning to your practice pipeline and document severity triage, remediation owner and secret rotation procedure."
+      ],
+      "evidence": "Keep a threat model, sanitized scan report and rotation runbook.",
+      "question": "Where should production credentials be stored?",
+      "options": [
+        "In the image",
+        "In Git history",
+        "In a controlled secret store accessed by workload identity"
+      ],
+      "answer": 2,
+      "explanation": "A controlled secret store and short-lived identity reduce credential exposure.",
+      "mode": "Local API + external tools",
+      "lab": "lab-kms-encryption",
+      "hours": 4,
+      "prerequisites": [
+        "observability"
+      ]
+    },
+    {
+      "id": "reliability",
+      "title": "Incident response & disaster recovery",
+      "stage": "Operations",
+      "topics": [
+        "Multi-AZ and multi-Region",
+        "RTO and RPO",
+        "Backup and restore tests",
+        "Game days and fault injection",
+        "Incident command and postmortems",
+        "Quota and capacity planning"
+      ],
+      "lesson": "RTO is the target time to restore service; RPO is the acceptable data-loss window. Replication alone is not backup because corruption or deletion may propagate. Rehearse restore into an isolated environment and verify application behavior, not just file existence. During an incident assign ownership, capture a timeline, mitigate user impact and communicate status. A blameless review should lead to concrete prevention work.",
+      "exercise": [
+        "Set RTO and RPO for your practice application and justify the tradeoffs.",
+        "Back up local application data, restore into a separate directory and compare records.",
+        "Run a controlled local outage drill; record detection, mitigation and recovery times."
+      ],
+      "evidence": "Deliver restore evidence, an incident timeline and prioritized corrective actions.",
+      "question": "Which target describes acceptable data loss?",
+      "options": [
+        "RTO",
+        "RPO",
+        "CPU utilization"
+      ],
+      "answer": 1,
+      "explanation": "RPO expresses how far back recovered data may be relative to the failure.",
+      "mode": "Design + external tools",
+      "lab": "",
+      "hours": 4,
+      "prerequisites": [
+        "security"
+      ]
+    },
+    {
+      "id": "finops",
+      "title": "Cost, performance & architecture reviews",
+      "stage": "Operations",
+      "topics": [
+        "Budgets and Cost Explorer",
+        "Cost allocation tags",
+        "Rightsizing and commitments",
+        "Data transfer and NAT costs",
+        "Load testing and quotas",
+        "Six Well-Architected pillars"
+      ],
+      "lesson": "Cost depends on usage, Region, data transfer and service choices. Treat local billing numbers as examples, not quotes. Label resources by owner and environment, measure utilization and remove unused capacity. Commitments trade flexibility for savings and require demand understanding. Review operational excellence, security, reliability, performance efficiency, cost optimization and sustainability together; an inexpensive design that misses recovery requirements is not a good tradeoff.",
+      "exercise": [
+        "Inventory your capstone resources, including logs, backups, NAT, storage and egress.",
+        "Build a usage-based estimate with the official AWS Pricing Calculator before any real deployment.",
+        "Run a bounded local load test, find a bottleneck and document one improvement across each architecture pillar."
+      ],
+      "evidence": "Submit assumptions, an estimate date and an architecture review with unresolved risks.",
+      "question": "Are local example billing values a reliable AWS quote?",
+      "options": [
+        "No, estimate actual regional usage",
+        "Yes, for every account",
+        "Yes, if under one dollar"
+      ],
+      "answer": 0,
+      "explanation": "Prices and usage vary; use current official pricing and include hidden usage dimensions.",
+      "mode": "Design + external tools",
+      "lab": "",
+      "hours": 4,
+      "prerequisites": [
+        "reliability"
+      ]
+    },
+    {
+      "id": "data",
+      "title": "Data engineering & analytics",
+      "stage": "Specializations",
+      "topics": [
+        "Kinesis and streaming",
+        "Firehose delivery",
+        "Glue and data catalogs",
+        "Athena and S3 data lakes",
+        "Redshift and warehousing",
+        "Lake Formation and governance",
+        "OpenSearch"
+      ],
+      "lesson": "Streaming processes events continuously; batch processing handles bounded datasets. A data lake needs discoverable schemas, ownership, access controls and retention, not just an object bucket. Partitioning and columnar formats can reduce scanned data, but too many tiny files add overhead. Define late-event handling, schema evolution and data quality checks before trusting analytics output. These managed analytics services require external tools or AWS.",
+      "exercise": [
+        "Design an orders-to-S3 analytics pipeline with explicit schema and partition layout.",
+        "Process a sample CSV locally, validate required fields and quarantine malformed rows.",
+        "Compare an Athena query path with a warehouse path and document privacy/retention controls."
+      ],
+      "evidence": "Save sample data, validation code and a pipeline design.",
+      "question": "Why partition a data lake by a frequently filtered date?",
+      "options": [
+        "To guarantee zero cost",
+        "To reduce relevant data scanned",
+        "To remove all access controls"
+      ],
+      "answer": 1,
+      "explanation": "Partition pruning can reduce the amount of data a query needs to read.",
+      "mode": "Design + external tools",
+      "lab": "",
+      "hours": 4,
+      "prerequisites": [
+        "finops"
+      ]
+    },
+    {
+      "id": "specialties",
+      "title": "Migration, hybrid, AI & advanced domains",
+      "stage": "Specializations",
+      "topics": [
+        "Migration Hub and Application Migration Service",
+        "DMS and cutover planning",
+        "Storage Gateway and hybrid connectivity",
+        "Bedrock and SageMaker",
+        "IoT Core and edge workloads",
+        "Batch and HPC",
+        "Service quotas and regional availability"
+      ],
+      "lesson": "Advanced AWS domains build on the same identity, networking, operations and cost foundations. Migration needs discovery, dependency mapping, validation and a rollback point. AI systems add model evaluation, sensitive-data handling, latency and usage controls. IoT workloads add device identity and intermittent connectivity. This module is an orientation and design exercise, not an implementation of every AWS service. Use the service documentation to deepen the area your project needs.",
+      "exercise": [
+        "Choose migration, AI, IoT or batch processing for an extension to your capstone.",
+        "Map data flows, trust boundaries, quotas and failure modes.",
+        "Write an implementation research plan with service documentation, a cost estimate and measurable acceptance criteria."
+      ],
+      "evidence": "Produce a specialization proposal that names unknowns and a validation plan.",
+      "question": "What should precede a migration cutover?",
+      "options": [
+        "Delete the source immediately",
+        "Skip dependency discovery",
+        "Validate data and rehearse rollback"
+      ],
+      "answer": 2,
+      "explanation": "Validation and a rehearsed rollback reduce the impact of a failed cutover.",
+      "mode": "Design + external tools",
+      "lab": "",
+      "hours": 4,
+      "prerequisites": [
+        "data"
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "id": "static",
+      "title": "Secure static website",
+      "modules": [
+        "iam",
+        "storage",
+        "edge",
+        "iac"
+      ],
+      "brief": "Design a private S3 origin behind CloudFront, with TLS, reproducible infrastructure and versioned deployments.",
+      "steps": [
+        "Upload and retrieve an asset locally; verify its contents.",
+        "Design origin access, DNS and certificates for AWS.",
+        "Version the infrastructure and a tested deployment workflow.",
+        "Rehearse rollback to a previous asset version and clean up local resources."
+      ],
+      "rubric": [
+        "Architecture diagram and access policy",
+        "Reproducible deployment instructions",
+        "Versioned release and rollback evidence",
+        "Cost assumptions and teardown checklist"
+      ]
+    },
+    {
+      "id": "orders",
+      "title": "Event-driven order processing",
+      "modules": [
+        "database",
+        "events",
+        "serverless",
+        "observability"
+      ],
+      "brief": "Build a local order validation worker and design its AWS API, queue, database and monitoring integration.",
+      "steps": [
+        "Create an order schema and validate good and bad input.",
+        "Create a local queue; send, receive and acknowledge an order.",
+        "Prove duplicate order IDs do not duplicate business effects.",
+        "Design managed triggers, dead-letter redrive and end-to-end tracing for AWS."
+      ],
+      "rubric": [
+        "Runnable worker and unit tests",
+        "Message lifecycle and duplicate-handling evidence",
+        "Failure/retry and dead-letter runbook",
+        "Clear local versus AWS execution boundaries"
+      ]
+    },
+    {
+      "id": "platform",
+      "title": "Production delivery platform",
+      "modules": [
+        "containers",
+        "kubernetes",
+        "iac",
+        "cicd",
+        "security",
+        "reliability",
+        "finops"
+      ],
+      "brief": "Take a containerized application from a reviewed commit to a monitored release, then recover from failure.",
+      "steps": [
+        "Build a non-root container and deploy it on an external local cluster.",
+        "Add CI tests, image scanning and digest-based releases.",
+        "Declare configuration in Git and rehearse a failed rollout.",
+        "Restore application data, run an incident drill and review the architecture."
+      ],
+      "rubric": [
+        "Repository with application, manifests and pipeline",
+        "Successful and failed release evidence",
+        "SLO dashboard design and incident timeline",
+        "Restore proof, cost review and cleanup instructions"
+      ]
+    }
+  ],
+  "references": [
+    {
+      "title": "AWS documentation: service-by-service reference",
+      "url": "https://docs.aws.amazon.com/"
+    },
+    {
+      "title": "AWS Well-Architected Framework",
+      "url": "https://docs.aws.amazon.com/wellarchitected/latest/framework/welcome.html"
+    },
+    {
+      "title": "AWS DevOps Guidance",
+      "url": "https://docs.aws.amazon.com/wellarchitected/latest/devops-guidance/"
+    },
+    {
+      "title": "AWS Pricing Calculator",
+      "url": "https://calculator.aws/"
+    }
+  ]
+}

@@ -1,7 +1,6 @@
 package console
 
 import (
-	"github.com/imrandev/localcloud/services"
 	"github.com/imrandev/localcloud/services/rds"
 	"github.com/imrandev/localcloud/services/s3"
 )
@@ -316,32 +315,12 @@ func CheckLab(labID string) LabCheckResult {
 			res.Details = append(res.Details, "[FAIL] Missing RDS database 'wp-database'. Provision it using: aws rds create-db-instance")
 		}
 
-		res.Passed = (res.Score == 100)
+		// Resource presence does not prove that WordPress is running or configured.
+		res.Passed = false
+		res.Details = append(res.Details, "Resource checks only. Manually verify WordPress installation, database connectivity and media upload before considering this lab complete.")
 		return res
-	case "lab-s3-website":
-		_, ok := services.Get("s3")
-		if ok {
-			res.Passed = true
-			res.Score = 100
-			res.Details = append(res.Details, "Verified: Amazon S3 service operational.")
-			res.Details = append(res.Details, "Verified: Static website hosting and bucket configuration confirmed.")
-		}
-	case "lab-iam-least-privilege":
-		res.Passed = true
-		res.Score = 100
-		res.Details = append(res.Details, "Verified: IAM User and policy evaluation verified.")
-	case "lab-sqs-decoupling":
-		res.Passed = true
-		res.Score = 100
-		res.Details = append(res.Details, "Verified: SQS Queue created and message processing verified.")
-	case "lab-dynamodb-crud":
-		res.Passed = true
-		res.Score = 100
-		res.Details = append(res.Details, "Verified: DynamoDB NoSQL table active and responding to queries.")
 	default:
-		res.Passed = true
-		res.Score = 100
-		res.Details = append(res.Details, "Verified: Lab criteria completed successfully in LocalCloud.")
+		res.Details = append(res.Details, "Not automatically verified. Review the lab steps and record evidence manually; no automatic checker is implemented for this lab.")
 	}
 
 	return res

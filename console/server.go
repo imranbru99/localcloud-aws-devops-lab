@@ -41,6 +41,12 @@ func NewHandler() *ConsoleHandler {
 func (h *ConsoleHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path
 
+	if path == "/console/academy" || path == "/console/academy/" {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		_, _ = w.Write([]byte(AcademyHTML))
+		return
+	}
+
 	if path == "/static/tailwind.min.js" {
 		w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
 		w.Header().Set("Cache-Control", "public, max-age=31536000")
@@ -63,6 +69,9 @@ func (h *ConsoleHandler) handleAPI(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path
 
 	switch path {
+	case "/api/curriculum":
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write(CurriculumJSON)
 	case "/api/stats":
 		h.handleStats(w, r)
 	case "/api/resources":
