@@ -4,85 +4,109 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AWS Management Console | LocalCloud</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace']
+          },
+          colors: {
+            aws: {
+              squid: '#0f172a',
+              header: '#1e293b',
+              orange: '#ff9900',
+              hover: '#334155',
+              dark: '#020617',
+              accent: '#f59e0b',
+              border: '#334155'
+            }
+          }
+        }
+      }
+    }
+  </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    :root {
-      --aws-squid: #161e2d;
-      --aws-header: #232f3e;
-      --aws-orange: #ff9900;
-      --aws-blue: #0073bb;
-      --aws-hover: #2a3a4d;
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    .hero-banner {
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 60%, #0f172a 100%) !important;
+      color: #ffffff !important;
     }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-    .bg-aws-squid { background-color: var(--aws-squid); }
-    .bg-aws-header { background-color: var(--aws-header); }
-    .text-aws-orange { color: var(--aws-orange); }
-    .bg-aws-orange { background-color: var(--aws-orange); }
-    .hover-aws:hover { background-color: var(--aws-hover); }
+    .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
   </style>
 </head>
-<body class="bg-gray-100 text-gray-800 h-screen flex flex-col overflow-hidden">
+<body class="bg-slate-100/90 text-slate-800 h-screen flex flex-col overflow-hidden antialiased">
 
   <!-- TOP AWS CONSOLE HEADER -->
-  <header class="bg-aws-squid text-white h-11 flex items-center justify-between px-3 select-none z-30 shadow">
-    <div class="flex items-center space-x-3">
+  <header class="bg-slate-900 text-white h-12 flex items-center justify-between px-4 select-none z-30 shadow-md border-b border-slate-800">
+    <div class="flex items-center space-x-4">
       <!-- AWS Logo / Brand -->
-      <a href="#/dashboard" onclick="showView('dashboard')" class="flex items-center space-x-1.5 font-bold tracking-tight text-white hover:text-aws-orange transition">
-        <i class="fa-solid fa-cube text-aws-orange text-lg"></i>
-        <span class="text-sm font-semibold tracking-wide">LocalCloud</span>
-        <span class="text-[10px] bg-amber-500/20 text-aws-orange px-1.5 py-0.5 rounded font-mono border border-amber-500/30">AWS Compatible</span>
+      <a href="#/dashboard" onclick="showView('dashboard')" class="flex items-center space-x-2 font-bold tracking-tight text-white hover:text-amber-400 transition group">
+        <div class="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center group-hover:bg-amber-500/20 transition">
+          <i class="fa-solid fa-cube text-amber-500 text-sm"></i>
+        </div>
+        <span class="text-sm font-black tracking-wide">LocalCloud</span>
+        <span class="text-[10px] bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full font-mono font-semibold border border-amber-500/30">AWS Compatible</span>
       </a>
 
       <!-- Services Dropdown Button -->
-      <button onclick="showView('labs')" class="flex items-center space-x-1.5 px-2.5 py-1 text-xs font-medium rounded hover-aws text-gray-200">
-        <i class="fa-solid fa-th"></i>
+      <button onclick="showView('labs')" class="flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg hover:bg-slate-800 text-slate-200 transition">
+        <i class="fa-solid fa-th text-slate-400"></i>
         <span id="txt-services">Services</span>
       </button>
 
       <!-- Global Search -->
-      <div class="relative w-80">
-        <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2 text-xs text-gray-400"></i>
-        <input type="text" id="globalSearchInput" placeholder="Search services, labs, resources [Ctrl+K]..." class="w-full bg-[#232f3e] text-xs text-white pl-8 pr-12 py-1 rounded border border-gray-600 focus:outline-none focus:border-aws-orange">
-        <span class="absolute right-2 top-1.5 text-[10px] text-gray-400 bg-gray-700 px-1 rounded">Alt+S</span>
+      <div class="relative w-80 hidden md:block">
+        <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-slate-400"></i>
+        <input type="text" id="globalSearchInput" placeholder="Search services, labs, resources [Ctrl+K]..." class="w-full bg-slate-800/90 text-xs text-white placeholder-slate-400 pl-8 pr-12 py-1.5 rounded-lg border border-slate-700/80 focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 transition">
+        <span class="absolute right-2.5 top-1.5 text-[10px] text-slate-400 bg-slate-700/80 px-1.5 py-0.5 rounded font-mono">Alt+S</span>
       </div>
     </div>
 
     <!-- Right Header Controls -->
     <div class="flex items-center space-x-2 text-xs">
       <!-- Language Switcher -->
-      <button onclick="toggleLanguage()" class="flex items-center space-x-1 px-2 py-1 rounded hover-aws text-gray-200 text-xs font-medium border border-gray-700">
-        <i class="fa-solid fa-language text-aws-orange"></i>
+      <button onclick="toggleLanguage()" class="flex items-center space-x-1 px-2.5 py-1 rounded-lg hover:bg-slate-800 text-slate-200 text-xs font-medium border border-slate-700/70 transition">
+        <i class="fa-solid fa-language text-amber-400"></i>
         <span id="currentLangLabel">English / বাংলা</span>
       </button>
 
       <!-- CloudShell Icon -->
-      <button onclick="toggleCloudShell()" class="p-1.5 px-2 rounded hover-aws text-gray-300 hover:text-white flex items-center space-x-1" title="Open CloudShell">
-        <i class="fa-solid fa-terminal text-sm text-green-400"></i>
-        <span class="hidden md:inline">CloudShell</span>
+      <button onclick="toggleCloudShell()" class="p-1.5 px-2.5 rounded-lg hover:bg-slate-800 text-slate-300 hover:text-white flex items-center space-x-1.5 transition" title="Open CloudShell">
+        <i class="fa-solid fa-terminal text-sm text-emerald-400"></i>
+        <span class="hidden md:inline font-mono text-[11px]">CloudShell</span>
       </button>
 
       <!-- Live API Inspector Pill -->
-      <button onclick="showView('inspector')" class="flex items-center space-x-1 px-2 py-1 rounded bg-blue-900/60 text-blue-200 border border-blue-700/50 hover:bg-blue-800">
-        <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
-        <span class="font-mono text-[11px]">API Inspector</span>
-        <span id="inspectorCounter" class="bg-blue-600 px-1 rounded text-[10px]">0</span>
+      <button onclick="showView('inspector')" class="flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/20 transition">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span class="font-mono text-[11px] font-semibold">API Inspector</span>
+        <span id="inspectorCounter" class="bg-emerald-500/30 text-emerald-200 px-1.5 py-0.2 rounded text-[10px] font-bold">0</span>
       </button>
 
       <!-- Region Switcher -->
       <div class="relative">
-        <button class="flex items-center space-x-1 px-2 py-1 rounded hover-aws text-gray-200 font-mono text-[11px]">
-          <i class="fa-solid fa-globe text-gray-400 text-xs"></i>
-          <span>us-east-1 (N. Virginia)</span>
+        <button class="flex items-center space-x-1.5 px-2.5 py-1 rounded-lg hover:bg-slate-800 text-slate-300 font-mono text-[11px] transition">
+          <i class="fa-solid fa-globe text-slate-400 text-xs"></i>
+          <span>us-east-1</span>
         </button>
       </div>
 
       <!-- Account Switcher -->
-      <div class="relative border-l border-gray-700 pl-2">
-        <button class="flex items-center space-x-1 px-2 py-1 rounded hover-aws text-gray-200">
-          <i class="fa-solid fa-user-circle text-aws-orange text-sm"></i>
-          <span class="font-semibold">000000000000</span>
-          <span class="text-gray-400">[root]</span>
+      <div class="relative border-l border-slate-700/80 pl-2">
+        <button class="flex items-center space-x-1.5 px-2 py-1 rounded-lg hover:bg-slate-800 text-slate-200 transition">
+          <i class="fa-solid fa-user-circle text-amber-400 text-sm"></i>
+          <span class="font-bold font-mono text-[11px]">000000000000</span>
+          <span class="text-slate-400 text-[10px]">[root]</span>
         </button>
       </div>
     </div>
@@ -91,162 +115,284 @@
   <!-- MAIN WORKSPACE -->
   <div class="flex flex-1 overflow-hidden">
     <!-- LEFT SIDEBAR -->
-    <aside class="w-60 bg-white border-r border-gray-200 flex flex-col justify-between select-none">
-      <div class="overflow-y-auto py-2">
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between select-none shadow-xs">
+      <div class="overflow-y-auto py-3 px-2 space-y-4 custom-scrollbar">
         <!-- Main Navigation Links -->
-        <div class="px-3 pb-2 text-[11px] font-bold uppercase tracking-wider text-gray-400">Learning Center</div>
-        <nav class="space-y-0.5 px-2 text-xs">
-          <a href="#/dashboard" onclick="showView('dashboard')" id="nav-dashboard" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100 hover:text-black">
-            <i class="fa-solid fa-gauge text-gray-500 w-4"></i>
-            <span>Console Home</span>
-          </a>
-          <a href="#/labs" onclick="showView('labs')" id="nav-labs" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100 hover:text-black">
-            <i class="fa-solid fa-graduation-cap text-indigo-600 w-4"></i>
-            <span>Guided Labs (60+)</span>
-            <span class="ml-auto bg-indigo-100 text-indigo-800 text-[10px] px-1.5 py-0.5 rounded-full font-bold">New</span>
-          </a>
-          <a href="#/resourcemap" onclick="showView('resourcemap')" id="nav-resourcemap" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100 hover:text-black">
-            <i class="fa-solid fa-diagram-project text-cyan-600 w-4"></i>
-            <span>Visual Resource Map</span>
-          </a>
-          <a href="#/inspector" onclick="showView('inspector')" id="nav-inspector" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100 hover:text-black">
-            <i class="fa-solid fa-microchip text-blue-600 w-4"></i>
-            <span>Live API Inspector</span>
-          </a>
-          <a href="#/quizzes" onclick="showView('quizzes')" id="nav-quizzes" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100 hover:text-black">
-            <i class="fa-solid fa-circle-question text-purple-600 w-4"></i>
-            <span>Practice Quizzes</span>
-          </a>
-          <a href="#/chaos" onclick="showView('chaos')" id="nav-chaos" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100 hover:text-black">
-            <i class="fa-solid fa-bolt text-red-500 w-4"></i>
-            <span>Chaos & Failure Lab</span>
-          </a>
-          <a href="#/mailbox" onclick="showView('mailbox')" id="nav-mailbox" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100 hover:text-black">
-            <i class="fa-solid fa-inbox text-blue-500 w-4"></i>
-            <span>SES / SNS Mailbox</span>
-          </a>
-          <a href="#/billing" onclick="showView('billing')" id="nav-billing" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100 hover:text-black">
-            <i class="fa-solid fa-coins text-amber-500 w-4"></i>
-            <span>Billing & Cost Sandbox</span>
-          </a>
-        </nav>
+        <div>
+          <div class="px-2.5 pb-1.5 text-[10px] font-extrabold uppercase tracking-widest text-slate-400 flex items-center justify-between">
+            <span>Learning Center</span>
+            <i class="fa-solid fa-graduation-cap text-[10px]"></i>
+          </div>
+          <nav class="space-y-0.5 text-xs">
+            <a href="#/dashboard" onclick="showView('dashboard')" id="nav-dashboard" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-lg font-semibold text-slate-700 hover:bg-slate-100 hover:text-slate-950 transition">
+              <i class="fa-solid fa-gauge text-slate-500 w-4"></i>
+              <span>Console Home</span>
+            </a>
+            <a href="#/labs" onclick="showView('labs')" id="nav-labs" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-lg font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-950 transition">
+              <i class="fa-solid fa-book-open text-indigo-600 w-4"></i>
+              <span>Guided Labs (60+)</span>
+              <span class="ml-auto bg-indigo-100 text-indigo-800 text-[9px] px-1.5 py-0.5 rounded-full font-bold">New</span>
+            </a>
+            <a href="#/resourcemap" onclick="showView('resourcemap')" id="nav-resourcemap" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-lg font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-950 transition">
+              <i class="fa-solid fa-diagram-project text-cyan-600 w-4"></i>
+              <span>Visual Resource Map</span>
+            </a>
+            <a href="#/inspector" onclick="showView('inspector')" id="nav-inspector" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-lg font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-950 transition">
+              <i class="fa-solid fa-microchip text-blue-600 w-4"></i>
+              <span>Live API Inspector</span>
+            </a>
+            <a href="#/quizzes" onclick="showView('quizzes')" id="nav-quizzes" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-lg font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-950 transition">
+              <i class="fa-solid fa-circle-question text-purple-600 w-4"></i>
+              <span>Practice Quizzes</span>
+            </a>
+            <a href="#/chaos" onclick="showView('chaos')" id="nav-chaos" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-lg font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-950 transition">
+              <i class="fa-solid fa-bolt text-amber-500 w-4"></i>
+              <span>Chaos & Failure Lab</span>
+            </a>
+            <a href="#/mailbox" onclick="showView('mailbox')" id="nav-mailbox" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-lg font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-950 transition">
+              <i class="fa-solid fa-inbox text-blue-500 w-4"></i>
+              <span>SES / SNS Mailbox</span>
+            </a>
+            <a href="#/billing" onclick="showView('billing')" id="nav-billing" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-950 transition">
+              <i class="fa-solid fa-coins text-emerald-600 w-4"></i>
+              <span>Billing & Cost Sandbox</span>
+            </a>
+          </nav>
+        </div>
 
-        <div class="px-3 pt-4 pb-2 text-[11px] font-bold uppercase tracking-wider text-gray-400">AWS Core Services</div>
-        <nav class="space-y-0.5 px-2 text-xs">
-          <a href="#/iam" onclick="showView('iam')" id="nav-iam" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100">
-            <i class="fa-solid fa-key text-red-500 w-4"></i>
-            <span>IAM & STS</span>
-          </a>
-          <a href="#/s3" onclick="showView('s3')" id="nav-s3" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100">
-            <i class="fa-solid fa-bucket text-green-600 w-4"></i>
-            <span>Amazon S3</span>
-          </a>
-          <a href="#/ec2" onclick="showView('ec2')" id="nav-ec2" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100">
-            <i class="fa-solid fa-server text-orange-500 w-4"></i>
-            <span>Amazon EC2</span>
-          </a>
-          <a href="#/sqs" onclick="showView('sqs')" id="nav-sqs" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100">
-            <i class="fa-solid fa-envelope-open-text text-pink-500 w-4"></i>
-            <span>Amazon SQS</span>
-          </a>
-          <a href="#/sns" onclick="showView('sns')" id="nav-sns" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100">
-            <i class="fa-solid fa-bullhorn text-rose-500 w-4"></i>
-            <span>Amazon SNS</span>
-          </a>
-          <a href="#/rds" onclick="showView('rds')" id="nav-rds" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100">
-            <i class="fa-solid fa-database text-blue-600 w-4"></i>
-            <span>Amazon RDS</span>
-          </a>
-          <a href="#/cloudformation" onclick="showView('cloudformation')" id="nav-cloudformation" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100">
-            <i class="fa-solid fa-layer-group text-orange-600 w-4"></i>
-            <span>CloudFormation</span>
-          </a>
-        </nav>
+        <div>
+          <div class="px-2.5 pb-1.5 text-[10px] font-extrabold uppercase tracking-widest text-slate-400 flex items-center justify-between">
+            <span>AWS Core Services</span>
+            <i class="fa-solid fa-layer-group text-[10px]"></i>
+          </div>
+          <nav class="space-y-0.5 text-xs">
+            <a href="#/iam" onclick="showView('iam')" id="nav-iam" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-lg font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-950 transition">
+              <i class="fa-solid fa-key text-red-500 w-4"></i>
+              <span>IAM & STS</span>
+            </a>
+            <a href="#/s3" onclick="showView('s3')" id="nav-s3" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-lg font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-950 transition">
+              <i class="fa-solid fa-bucket text-emerald-600 w-4"></i>
+              <span>Amazon S3</span>
+            </a>
+            <a href="#/ec2" onclick="showView('ec2')" id="nav-ec2" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-lg font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-950 transition">
+              <i class="fa-solid fa-server text-orange-500 w-4"></i>
+              <span>Amazon EC2</span>
+            </a>
+            <a href="#/sqs" onclick="showView('sqs')" id="nav-sqs" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-lg font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-950 transition">
+              <i class="fa-solid fa-envelope-open-text text-pink-500 w-4"></i>
+              <span>Amazon SQS</span>
+            </a>
+            <a href="#/sns" onclick="showView('sns')" id="nav-sns" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-lg font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-950 transition">
+              <i class="fa-solid fa-bullhorn text-rose-500 w-4"></i>
+              <span>Amazon SNS</span>
+            </a>
+            <a href="#/rds" onclick="showView('rds')" id="nav-rds" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-lg font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-950 transition">
+              <i class="fa-solid fa-database text-blue-600 w-4"></i>
+              <span>Amazon RDS</span>
+            </a>
+            <a href="#/cloudformation" onclick="showView('cloudformation')" id="nav-cloudformation" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-lg font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-950 transition">
+              <i class="fa-solid fa-layer-group text-amber-600 w-4"></i>
+              <span>CloudFormation</span>
+            </a>
+          </nav>
+        </div>
       </div>
 
       <!-- Footer Info -->
-      <div class="p-3 border-t border-gray-200 text-[11px] text-gray-500 bg-gray-50 flex items-center justify-between">
+      <div class="p-3 border-t border-slate-200 text-[11px] text-slate-500 bg-slate-50/70 flex items-center justify-between">
         <div>
-          <p class="font-semibold text-gray-700">LocalCloud v1.0</p>
-          <p class="text-[10px]">Port: 4566 (AWS CLI)</p>
+          <p class="font-bold text-slate-800">LocalCloud v1.0</p>
+          <p class="text-[10px] font-mono text-slate-500">Port: 4566 (AWS CLI)</p>
         </div>
-        <button onclick="resetCloud()" class="text-red-600 hover:text-red-800 text-xs px-2 py-1 rounded hover:bg-red-50 font-medium" title="Reset all state">
+        <button onclick="resetCloud()" class="text-red-600 hover:text-red-800 text-xs px-2.5 py-1 rounded-md hover:bg-red-50 font-semibold transition" title="Reset all state">
           <i class="fa-solid fa-arrow-rotate-right mr-1"></i>Reset
         </button>
       </div>
     </aside>
 
     <!-- CONTENT AREA -->
-    <main class="flex-1 overflow-y-auto bg-gray-100 p-6" id="mainContent">
+    <main class="flex-1 overflow-y-auto bg-slate-100/80 p-6 custom-scrollbar" id="mainContent">
 
       <!-- DASHBOARD VIEW -->
-      <section id="view-dashboard" class="space-y-6">
-        <div class="bg-gradient-to-r from-aws-squid to-[#232f3e] text-white p-6 rounded-lg shadow-sm">
-          <div class="flex items-center justify-between">
+      <section id="view-dashboard" class="space-y-6 max-w-7xl mx-auto">
+        <!-- MODERN HERO BANNER -->
+        <div class="hero-banner p-7 rounded-2xl shadow-xl border border-slate-800 relative overflow-hidden">
+          <div class="absolute -right-10 -bottom-10 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-5 relative z-10">
             <div>
-              <h1 class="text-2xl font-bold flex items-center space-x-2">
-                <span>Welcome to AWS Management Console</span>
-                <span class="text-xs bg-amber-500 text-black px-2 py-0.5 rounded font-bold uppercase tracking-wider">LocalCloud Sandbox</span>
+              <div class="flex items-center space-x-2.5">
+                <span class="text-xs bg-amber-500 text-black font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-xs">LocalCloud Sandbox</span>
+                <span class="text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-medium px-2.5 py-0.5 rounded-full flex items-center space-x-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                  <span>Port 4566 Online</span>
+                </span>
+              </div>
+              <h1 class="text-2xl md:text-3xl font-black text-white mt-2.5 tracking-tight">
+                Welcome to AWS Management Console
               </h1>
-              <p class="text-sm text-gray-300 mt-1 max-w-2xl">
-                A 100% free, local AWS-compatible learning platform. Connect your official <code class="text-aws-orange bg-black/40 px-1.5 py-0.5 rounded">aws</code> CLI, boto3, Terraform, and SDKs with endpoint <code class="text-aws-orange bg-black/40 px-1.5 py-0.5 rounded">http://localhost:4566</code>.
+              <p class="text-sm text-slate-300 mt-2 max-w-2xl leading-relaxed">
+                A 100% free, local AWS-compatible learning platform. Connect your official <code class="text-amber-400 bg-slate-900/90 border border-slate-700/80 px-2 py-0.5 rounded font-mono text-xs font-semibold">aws</code> CLI, boto3, Terraform, and SDKs with endpoint <code class="text-amber-400 bg-slate-900/90 border border-slate-700/80 px-2 py-0.5 rounded font-mono text-xs font-semibold">http://localhost:4566</code>.
               </p>
             </div>
-            <div class="flex space-x-2">
-              <button onclick="showView('labs')" class="bg-aws-orange hover:bg-amber-600 text-black font-semibold text-xs px-4 py-2.5 rounded shadow flex items-center space-x-1.5 transition">
-                <i class="fa-solid fa-book-open"></i>
+            <div class="flex flex-wrap items-center gap-2.5">
+              <button onclick="showView('labs')" class="bg-aws-orange hover:bg-amber-500 text-slate-950 font-bold text-xs px-4 py-2.5 rounded-lg shadow-md hover:shadow-lg transition flex items-center space-x-2">
+                <i class="fa-solid fa-graduation-cap"></i>
                 <span>Explore Guided Labs</span>
+              </button>
+              <button onclick="toggleCloudShell()" class="bg-slate-800/90 hover:bg-slate-700 text-white border border-slate-700 font-semibold text-xs px-3.5 py-2.5 rounded-lg transition flex items-center space-x-1.5">
+                <i class="fa-solid fa-terminal text-emerald-400"></i>
+                <span>CloudShell</span>
               </button>
             </div>
           </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-            <div class="flex items-center justify-between text-gray-500 text-xs font-semibold uppercase">
-              <span>S3 Storage</span>
-              <i class="fa-solid fa-bucket text-green-600 text-lg"></i>
+        <!-- 4 MODERN METRIC CARDS -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div onclick="showView('s3')" class="bg-white p-5 rounded-xl border border-slate-200/90 shadow-xs hover:shadow-md hover:border-slate-300 transition cursor-pointer group">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">S3 Storage</span>
+              <div class="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:scale-110 transition">
+                <i class="fa-solid fa-bucket text-base"></i>
+              </div>
             </div>
-            <p id="stat-s3-count" class="text-2xl font-bold text-gray-800 mt-2">Active</p>
-            <p class="text-[11px] text-gray-500 mt-1">Static web & data buckets</p>
+            <p id="stat-s3-count" class="text-2xl font-black text-slate-900 mt-2 tracking-tight">Active</p>
+            <p class="text-xs text-slate-500 mt-1 flex items-center justify-between">
+              <span>Buckets & object storage</span>
+              <i class="fa-solid fa-arrow-right text-[10px] text-slate-400 group-hover:translate-x-1 transition"></i>
+            </p>
           </div>
-          <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-            <div class="flex items-center justify-between text-gray-500 text-xs font-semibold uppercase">
-              <span>EC2 Compute</span>
-              <i class="fa-solid fa-server text-orange-500 text-lg"></i>
+
+          <div onclick="showView('ec2')" class="bg-white p-5 rounded-xl border border-slate-200/90 shadow-xs hover:shadow-md hover:border-slate-300 transition cursor-pointer group">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">EC2 Compute</span>
+              <div class="w-9 h-9 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center group-hover:scale-110 transition">
+                <i class="fa-solid fa-server text-base"></i>
+              </div>
             </div>
-            <p id="stat-ec2-count" class="text-2xl font-bold text-gray-800 mt-2">Running</p>
-            <p class="text-[11px] text-gray-500 mt-1">Virtual compute containers</p>
+            <p id="stat-ec2-count" class="text-2xl font-black text-slate-900 mt-2 tracking-tight">Running</p>
+            <p class="text-xs text-slate-500 mt-1 flex items-center justify-between">
+              <span>Virtual compute instances</span>
+              <i class="fa-solid fa-arrow-right text-[10px] text-slate-400 group-hover:translate-x-1 transition"></i>
+            </p>
           </div>
-          <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-            <div class="flex items-center justify-between text-gray-500 text-xs font-semibold uppercase">
-              <span>IAM Principals</span>
-              <i class="fa-solid fa-users text-red-500 text-lg"></i>
+
+          <div onclick="showView('iam')" class="bg-white p-5 rounded-xl border border-slate-200/90 shadow-xs hover:shadow-md hover:border-slate-300 transition cursor-pointer group">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">IAM Principals</span>
+              <div class="w-9 h-9 rounded-lg bg-red-50 text-red-600 flex items-center justify-center group-hover:scale-110 transition">
+                <i class="fa-solid fa-shield-halved text-base"></i>
+              </div>
             </div>
-            <p class="text-2xl font-bold text-gray-800 mt-2">1 [root]</p>
-            <p class="text-[11px] text-gray-500 mt-1">Users, roles and access keys</p>
+            <p id="stat-iam-count" class="text-2xl font-black text-slate-900 mt-2 tracking-tight">1 [root]</p>
+            <p class="text-xs text-slate-500 mt-1 flex items-center justify-between">
+              <span>Users, roles & policies</span>
+              <i class="fa-solid fa-arrow-right text-[10px] text-slate-400 group-hover:translate-x-1 transition"></i>
+            </p>
           </div>
-          <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-            <div class="flex items-center justify-between text-gray-500 text-xs font-semibold uppercase">
-              <span>Simulated AWS Bill</span>
-              <i class="fa-solid fa-coins text-amber-500 text-lg"></i>
+
+          <div onclick="showView('billing')" class="bg-white p-5 rounded-xl border border-slate-200/90 shadow-xs hover:shadow-md hover:border-slate-300 transition cursor-pointer group">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Simulated AWS Bill</span>
+              <div class="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center group-hover:scale-110 transition">
+                <i class="fa-solid fa-coins text-base"></i>
+              </div>
             </div>
-            <p class="text-2xl font-bold text-green-600 mt-2">$0.00</p>
-            <p class="text-[11px] text-gray-500 mt-1">Free Tier & Educational Sandbox</p>
+            <p class="text-2xl font-black text-emerald-600 mt-2 tracking-tight">$0.00</p>
+            <p class="text-xs text-slate-500 mt-1 flex items-center justify-between">
+              <span>Free Tier Sandbox</span>
+              <i class="fa-solid fa-arrow-right text-[10px] text-slate-400 group-hover:translate-x-1 transition"></i>
+            </p>
           </div>
         </div>
 
-        <div class="bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
-          <div class="flex items-center justify-between mb-3">
-            <h3 class="font-bold text-sm text-gray-800 flex items-center space-x-2">
-              <i class="fa-solid fa-terminal text-aws-orange"></i>
-              <span>Official AWS CLI One-Minute Quickstart</span>
-            </h3>
-            <button onclick="copySnippet('cli-code')" class="text-xs text-blue-600 hover:text-blue-800 font-medium">
-              <i class="fa-regular fa-copy mr-1"></i>Copy Command
+        <!-- AWS SERVICES QUICK ACCESS GRID -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-xs">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h2 class="text-sm font-bold text-slate-900 flex items-center space-x-2">
+                <i class="fa-solid fa-cubes text-aws-orange"></i>
+                <span>AWS Services Quick Access</span>
+              </h2>
+              <p class="text-xs text-slate-500 mt-0.5">Quickly access and provision LocalCloud services with native AWS CLI/SDK compatibility.</p>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            <a href="#/s3" onclick="showView('s3')" class="p-3.5 rounded-xl border border-slate-200/70 hover:border-emerald-300 hover:bg-emerald-50/30 transition group flex flex-col justify-between">
+              <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center mb-2 group-hover:scale-105 transition">
+                <i class="fa-solid fa-bucket text-sm"></i>
+              </div>
+              <div>
+                <p class="font-bold text-xs text-slate-900 group-hover:text-emerald-700">Amazon S3</p>
+                <p class="text-[10px] text-slate-500 mt-0.5">Object storage</p>
+              </div>
+            </a>
+            <a href="#/ec2" onclick="showView('ec2')" class="p-3.5 rounded-xl border border-slate-200/70 hover:border-amber-300 hover:bg-amber-50/30 transition group flex flex-col justify-between">
+              <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center mb-2 group-hover:scale-105 transition">
+                <i class="fa-solid fa-server text-sm"></i>
+              </div>
+              <div>
+                <p class="font-bold text-xs text-slate-900 group-hover:text-amber-700">Amazon EC2</p>
+                <p class="text-[10px] text-slate-500 mt-0.5">Virtual servers</p>
+              </div>
+            </a>
+            <a href="#/iam" onclick="showView('iam')" class="p-3.5 rounded-xl border border-slate-200/70 hover:border-red-300 hover:bg-red-50/30 transition group flex flex-col justify-between">
+              <div class="w-8 h-8 rounded-lg bg-red-100 text-red-700 flex items-center justify-center mb-2 group-hover:scale-105 transition">
+                <i class="fa-solid fa-key text-sm"></i>
+              </div>
+              <div>
+                <p class="font-bold text-xs text-slate-900 group-hover:text-red-700">IAM & STS</p>
+                <p class="text-[10px] text-slate-500 mt-0.5">Access control</p>
+              </div>
+            </a>
+            <a href="#/sqs" onclick="showView('sqs')" class="p-3.5 rounded-xl border border-slate-200/70 hover:border-pink-300 hover:bg-pink-50/30 transition group flex flex-col justify-between">
+              <div class="w-8 h-8 rounded-lg bg-pink-100 text-pink-700 flex items-center justify-center mb-2 group-hover:scale-105 transition">
+                <i class="fa-solid fa-envelope-open-text text-sm"></i>
+              </div>
+              <div>
+                <p class="font-bold text-xs text-slate-900 group-hover:text-pink-700">Amazon SQS</p>
+                <p class="text-[10px] text-slate-500 mt-0.5">Message queues</p>
+              </div>
+            </a>
+            <a href="#/sns" onclick="showView('sns')" class="p-3.5 rounded-xl border border-slate-200/70 hover:border-rose-300 hover:bg-rose-50/30 transition group flex flex-col justify-between">
+              <div class="w-8 h-8 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center mb-2 group-hover:scale-105 transition">
+                <i class="fa-solid fa-bullhorn text-sm"></i>
+              </div>
+              <div>
+                <p class="font-bold text-xs text-slate-900 group-hover:text-rose-700">Amazon SNS</p>
+                <p class="text-[10px] text-slate-500 mt-0.5">Pub/Sub topics</p>
+              </div>
+            </a>
+            <a href="#/rds" onclick="showView('rds')" class="p-3.5 rounded-xl border border-slate-200/70 hover:border-blue-300 hover:bg-blue-50/30 transition group flex flex-col justify-between">
+              <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center mb-2 group-hover:scale-105 transition">
+                <i class="fa-solid fa-database text-sm"></i>
+              </div>
+              <div>
+                <p class="font-bold text-xs text-slate-900 group-hover:text-blue-700">Amazon RDS</p>
+                <p class="text-[10px] text-slate-500 mt-0.5">SQL databases</p>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <!-- MACOS-STYLE CLI QUICKSTART TERMINAL -->
+        <div class="bg-slate-950 text-slate-100 rounded-2xl border border-slate-800 shadow-xl overflow-hidden font-mono">
+          <div class="bg-slate-900/90 px-4 py-3 border-b border-slate-800 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+              <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
+              <div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+              <div class="w-3 h-3 rounded-full bg-emerald-500/80"></div>
+              <span class="text-xs text-slate-400 font-sans font-medium ml-2 flex items-center space-x-1.5">
+                <i class="fa-solid fa-terminal text-amber-400"></i>
+                <span>AWS CLI One-Minute Quickstart</span>
+              </span>
+            </div>
+            <button onclick="copySnippet('cli-code')" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1 rounded-md font-sans font-medium transition flex items-center space-x-1">
+              <i class="fa-regular fa-copy"></i>
+              <span>Copy snippet</span>
             </button>
           </div>
-          <pre id="cli-code" class="bg-gray-900 text-green-400 p-4 rounded font-mono text-xs overflow-x-auto select-all"># 1. Configure dummy AWS credentials:
+          <pre id="cli-code" class="p-5 text-emerald-400 text-xs overflow-x-auto select-all leading-relaxed"># 1. Configure dummy AWS credentials (works out-of-the-box):
 export AWS_ACCESS_KEY_ID="test"
 export AWS_SECRET_ACCESS_KEY="test"
 export AWS_DEFAULT_REGION="us-east-1"
@@ -1192,13 +1338,19 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
         const el = document.getElementById('view-' + v);
         const nav = document.getElementById('nav-' + v);
         if (el) el.classList.add('hidden');
-        if (nav) nav.classList.remove('bg-gray-200', 'font-bold');
+        if (nav) {
+          nav.classList.remove('bg-amber-50', 'text-amber-950', 'font-bold', 'shadow-2xs');
+          nav.classList.add('text-slate-700', 'font-medium');
+        }
       });
 
       const activeEl = document.getElementById('view-' + viewName);
       const activeNav = document.getElementById('nav-' + viewName);
       if (activeEl) activeEl.classList.remove('hidden');
-      if (activeNav) activeNav.classList.add('bg-gray-200', 'font-bold');
+      if (activeNav) {
+        activeNav.classList.remove('text-slate-700', 'font-medium');
+        activeNav.classList.add('bg-amber-50', 'text-amber-950', 'font-bold', 'shadow-2xs');
+      }
 
       // Update URL in browser address bar (Hash-based SPA routing)
       if (updateUrl) {
@@ -1255,6 +1407,17 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
       fetch('/api/resources')
         .then(function(r) { return r.json(); })
         .then(function(data) {
+          // Hydrate Dashboard Stats
+          if (document.getElementById('stat-s3-count') && data.s3) {
+            document.getElementById('stat-s3-count').innerText = data.s3.length + (data.s3.length === 1 ? ' Bucket' : ' Buckets');
+          }
+          if (document.getElementById('stat-ec2-count') && data.ec2) {
+            document.getElementById('stat-ec2-count').innerText = data.ec2.length + (data.ec2.length === 1 ? ' Instance' : ' Instances');
+          }
+          if (document.getElementById('stat-iam-count') && data.iam) {
+            const count = Object.keys(data.iam).length + 1;
+            document.getElementById('stat-iam-count').innerText = count + (count === 1 ? ' Principal' : ' Principals');
+          }
           // 1. EC2
           const ec2Tbody = document.getElementById('ec2TableBody');
           if (ec2Tbody) {
