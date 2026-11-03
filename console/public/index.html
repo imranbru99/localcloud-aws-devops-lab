@@ -942,8 +942,8 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
       <p class="text-gray-400">[LocalCloud CloudShell initialized. All commands run directly against port 4566.]</p>
     </div>
     <div class="bg-gray-900 p-2 flex items-center space-x-2 border-t border-gray-800">
-      <span class="text-green-500 font-mono text-xs pl-2">$ aws</span>
-      <input type="text" id="cloudShellInput" onkeydown="if(event.key==='Enter') executeCloudShell(this.value)" placeholder="sts get-caller-identity" class="flex-1 bg-transparent text-white text-xs font-mono focus:outline-none">
+      <span class="text-green-500 font-mono text-xs pl-2">$</span>
+      <input type="text" id="cloudShellInput" onkeydown="if(event.key==='Enter') executeCloudShell(this.value)" placeholder="aws s3 ls, aws sts get-caller-identity, or ./samples/wordpress/deploy.sh" class="flex-1 bg-transparent text-white text-xs font-mono focus:outline-none">
     </div>
   </div>
 
@@ -1825,10 +1825,19 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
         .then(function(r) { return r.json(); })
         .then(function(labs) {
           const container = document.getElementById('labsContainer');
+          if (!container) return;
           container.innerHTML = '';
           labs.forEach(function(l) {
             const card = document.createElement('div');
             card.className = 'bg-white p-5 rounded-lg border border-gray-200 shadow-sm space-y-3';
+            
+            let extraBtn = '';
+            if (l.id === 'lab-wordpress-aws') {
+              extraBtn = '<button onclick="deployWordpressStack(this)" class="bg-amber-500 hover:bg-amber-600 text-black font-bold text-xs px-3.5 py-1.5 rounded shadow mr-2 transition">' +
+                '<i class="fa-solid fa-rocket mr-1"></i>1-Click Deploy Stack' +
+              '</button>';
+            }
+
             card.innerHTML = 
               '<div class="flex items-start justify-between">' +
                 '<div>' +
@@ -1838,18 +1847,54 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
                 '<span class="text-xs text-gray-400 font-mono">' + l.duration + '</span>' +
               '</div>' +
               '<p class="text-xs text-gray-600">' + l.objective + '</p>' +
-              '<div class="p-2.5 bg-gray-50 rounded border border-gray-200 font-mono text-[11px] text-gray-700 overflow-x-auto">' +
+              '<div class="p-2.5 bg-gray-50 rounded border border-gray-200 font-mono text-[11px] text-gray-700 overflow-x-auto whitespace-pre leading-relaxed">' +
                 l.diagram +
               '</div>' +
               '<div class="flex items-center justify-between pt-2 border-t border-gray-100">' +
                 '<span class="text-[11px] text-gray-500">Real AWS: ' + l.real_aws_cost + '</span>' +
-                '<button onclick="checkLab(\'' + l.id + '\')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs px-3.5 py-1.5 rounded shadow">' +
-                  '<i class="fa-solid fa-check-circle mr-1"></i>Verify Lab' +
-                '</button>' +
+                '<div class="flex items-center">' +
+                  extraBtn +
+                  '<button onclick="checkLab(\'' + l.id + '\')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs px-3.5 py-1.5 rounded shadow transition">' +
+                    '<i class="fa-solid fa-check-circle mr-1"></i>Verify Lab' +
+                  '</button>' +
+                '</div>' +
               '</div>';
             container.appendChild(card);
           });
+        })
+        .catch(function(err) {
+          console.error("Failed to load labs:", err);
         });
+    }
+
+    function deployWordpressStack(btn) {
+      btn.disabled = true;
+      const orig = btn.innerHTML;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Deploying...';
+      showToast('Deploying WordPress', 'Starting Amazon S3, RDS MySQL, and EC2 containers...', 'info');
+
+      fetch('/api/cloudshell', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({command: './samples/wordpress/deploy.sh'})
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(res) {
+        btn.disabled = false;
+        btn.innerHTML = orig;
+        showToast('WordPress Stack Deployed', 'WordPress is running at http://localhost:8080', 'success');
+        loadResources();
+        const cs = document.getElementById('cloudShellDrawer');
+        if (cs && cs.classList.contains('hidden')) cs.classList.remove('hidden');
+        const log = document.getElementById('cloudShellLog');
+        log.innerHTML += '<p class="text-green-400 font-bold mt-2">$ ./samples/wordpress/deploy.sh</p><pre class="text-gray-300 text-[11px] font-mono whitespace-pre-wrap bg-black/40 p-2 rounded border border-gray-800">' + res.output + '</pre>';
+        log.scrollTop = log.scrollHeight;
+      })
+      .catch(function(err) {
+        btn.disabled = false;
+        btn.innerHTML = orig;
+        showToast('Deployment Error', err.message, 'error');
+      });
     }
 
     function checkLab(id) {
@@ -1860,7 +1905,7 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
       })
       .then(function(r) { return r.json(); })
       .then(function(res) {
-        alert(res.passed ? "🎉 Passed! " + res.details.join("\n") : "Result: " + res.details.join("\n"));
+        alert(res.passed ? "🎉 Passed (Score: " + res.score + "/100)!\n\n" + res.details.join("\n") : "Lab Verification (Score: " + res.score + "/100):\n\n" + res.details.join("\n"));
       });
     }
 
@@ -1945,22 +1990,42 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
     function toggleCloudShell() { document.getElementById('cloudShellDrawer').classList.toggle('hidden'); }
 
     function executeCloudShell(cmd) {
-      if (!cmd.trim()) return;
+      cmd = cmd.trim();
+      if (!cmd) return;
       const log = document.getElementById('cloudShellLog');
-      log.innerHTML += '<p><span class="text-green-500">$ aws ' + cmd + '</span></p>';
+      log.innerHTML += '<p class="mt-2"><span class="text-green-400 font-bold">$ ' + cmd + '</span></p>';
       document.getElementById('cloudShellInput').value = '';
+      log.scrollTop = log.scrollHeight;
 
-      fetch('http://localhost:4566', {
+      let fullCmd = cmd;
+      if (!cmd.startsWith('aws') && !cmd.startsWith('./') && !cmd.startsWith('docker') && !cmd.startsWith('sh') && !cmd.startsWith('bash') && !cmd.startsWith('curl')) {
+        fullCmd = 'aws ' + cmd;
+      }
+
+      const pending = document.createElement('p');
+      pending.className = 'text-yellow-400 text-[11px] animate-pulse';
+      pending.innerText = 'Executing in LocalCloud environment...';
+      log.appendChild(pending);
+      log.scrollTop = log.scrollHeight;
+
+      fetch('/api/cloudshell', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Authorization': 'AWS4-HMAC-SHA256 Credential=test/20261103/us-east-1/sts/aws4_request'
-        },
-        body: 'Action=GetCallerIdentity'
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({command: fullCmd})
       })
-      .then(function(r) { return r.text(); })
-      .then(function(t) {
-        log.innerHTML += '<pre class="text-gray-300 text-[11px]">' + t.replace(/</g, '&lt;') + '</pre>';
+      .then(function(r) { return r.json(); })
+      .then(function(res) {
+        pending.remove();
+        const pre = document.createElement('pre');
+        pre.className = 'text-gray-300 text-[11px] font-mono whitespace-pre-wrap leading-relaxed bg-black/40 p-2.5 rounded border border-gray-800';
+        pre.innerText = res.output || '(Command completed successfully with no output)';
+        log.appendChild(pre);
+        log.scrollTop = log.scrollHeight;
+        loadResources();
+      })
+      .catch(function(err) {
+        pending.remove();
+        log.innerHTML += '<p class="text-red-400 text-xs font-mono">Error: ' + err.message + '</p>';
         log.scrollTop = log.scrollHeight;
       });
     }

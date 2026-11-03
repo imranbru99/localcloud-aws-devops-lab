@@ -1,6 +1,6 @@
 services:
   db:
-    image: mysql:8.0
+    image: docker.io/library/mysql:8.0
     container_name: localcloud-wp-rds
     restart: unless-stopped
     environment:
@@ -14,7 +14,7 @@ services:
       - db_data:/var/lib/mysql
 
   wordpress:
-    image: wordpress:php8.2-apache
+    image: docker.io/library/wordpress:php8.2-apache
     container_name: localcloud-wp-ec2
     restart: unless-stopped
     depends_on:

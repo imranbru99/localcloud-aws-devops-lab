@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
+	"os/exec"
 	"strings"
 	"sync"
 	"time"
@@ -79,6 +81,8 @@ func (h *ConsoleHandler) handleAPI(w http.ResponseWriter, r *http.Request) {
 		h.handleResourceMap(w, r)
 	case "/api/reset":
 		h.handleReset(w, r)
+	case "/api/cloudshell":
+		h.handleCloudShell(w, r)
 	default:
 		http.NotFound(w, r)
 	}
@@ -307,4 +311,52 @@ func (h *ConsoleHandler) handleLabCheck(w http.ResponseWriter, r *http.Request) 
 
 	result := CheckLab(req.LabID)
 	_ = json.NewEncoder(w).Encode(result)
+}
+
+func (h *ConsoleHandler) handleCloudShell(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var req struct {
+		Command string `json:"command"`
+	}
+	_ = json.NewDecoder(r.Body).Decode(&req)
+
+	cmdStr := strings.TrimSpace(req.Command)
+	if cmdStr == "" {
+		_ = json.NewEncoder(w).Encode(map[string]string{"output": ""})
+		return
+	}
+
+	// Auto-prefix endpoint URL for AWS CLI commands if not specified
+	if strings.HasPrefix(cmdStr, "aws ") && !strings.Contains(cmdStr, "--endpoint-url") {
+		cmdStr = strings.Replace(cmdStr, "aws ", "aws --endpoint-url http://localhost:4566 ", 1)
+	}
+
+	ctx, cancel := r.Context(), func() {}
+	_ = ctx
+	_ = cancel
+
+	cmd := exec.Command("bash", "-c", cmdStr)
+	cmd.Dir = "/home/imran/project/aws"
+	cmd.Env = append(os.Environ(),
+		"AWS_ENDPOINT_URL=http://localhost:4566",
+		"AWS_ACCESS_KEY_ID=test",
+		"AWS_SECRET_ACCESS_KEY=test",
+		"AWS_DEFAULT_REGION=us-east-1",
+		"PATH=/home/imran/.local/bin:/usr/local/bin:/usr/bin:/bin:"+os.Getenv("PATH"),
+	)
+
+	out, err := cmd.CombinedOutput()
+	output := string(out)
+	if err != nil && output == "" {
+		output = fmt.Sprintf("Error: %v", err)
+	}
+
+	_ = json.NewEncoder(w).Encode(map[string]string{
+		"output": output,
+	})
 }
