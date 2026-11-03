@@ -46,6 +46,25 @@ func init() {
 		buckets: make(map[string]*BucketMeta),
 		dataDir: s3Dir,
 	}
+
+	// Load existing buckets on disk
+	if entries, err := os.ReadDir(s3Dir); err == nil {
+		for _, e := range entries {
+			if e.IsDir() {
+				info, _ := e.Info()
+				modTime := time.Now().UTC()
+				if info != nil {
+					modTime = info.ModTime().UTC()
+				}
+				DefaultS3.buckets[e.Name()] = &BucketMeta{
+					Name:         e.Name(),
+					CreationDate: modTime,
+					Tags:         make(map[string]string),
+				}
+			}
+		}
+	}
+
 	services.Register(DefaultS3)
 }
 

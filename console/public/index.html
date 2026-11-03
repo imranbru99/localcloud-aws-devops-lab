@@ -273,9 +273,14 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
             </h1>
             <p class="text-sm text-gray-500">Virtual servers in the cloud with custom AMIs, key pairs, and security groups.</p>
           </div>
-          <div class="flex space-x-2">
-            <button onclick="executeAction('ec2-launch')" class="bg-aws-orange hover:bg-amber-600 text-black font-semibold text-xs px-4 py-2 rounded shadow">
-              <i class="fa-solid fa-plus mr-1"></i>Launch instances
+          <div class="flex items-center space-x-2">
+            <button onclick="loadResources()" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold text-xs px-3 py-2 rounded shadow-sm flex items-center space-x-1.5" title="Refresh">
+              <i class="fa-solid fa-rotate"></i>
+              <span>Refresh</span>
+            </button>
+            <button onclick="openCreateModal('ec2')" class="bg-aws-orange hover:bg-amber-600 text-black font-semibold text-xs px-4 py-2 rounded shadow flex items-center space-x-1.5">
+              <i class="fa-solid fa-plus"></i>
+              <span>Launch instances</span>
             </button>
           </div>
         </div>
@@ -294,12 +299,10 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
                 <th class="p-3">Public IPv4</th>
                 <th class="p-3">Private IPv4</th>
                 <th class="p-3">VPC / Subnet</th>
+                <th class="p-3 text-right">Actions</th>
               </tr>
             </thead>
             <tbody id="ec2TableBody" class="divide-y divide-gray-100 font-mono">
-              <tr>
-                <td colspan="6" class="p-6 text-center text-gray-400 font-sans">No instances found. Launch one using <code class="text-aws-orange">aws ec2 run-instances</code>.</td>
-              </tr>
             </tbody>
           </table>
         </div>
@@ -315,9 +318,16 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
             </h1>
             <p class="text-sm text-gray-500">Fully managed message queues for microservices, distributed systems, and serverless applications.</p>
           </div>
-          <button onclick="executeAction('sqs-create')" class="bg-aws-orange hover:bg-amber-600 text-black font-semibold text-xs px-4 py-2 rounded shadow">
-            <i class="fa-solid fa-plus mr-1"></i>Create queue
-          </button>
+          <div class="flex items-center space-x-2">
+            <button onclick="loadResources()" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold text-xs px-3 py-2 rounded shadow-sm flex items-center space-x-1.5" title="Refresh">
+              <i class="fa-solid fa-rotate"></i>
+              <span>Refresh</span>
+            </button>
+            <button onclick="openCreateModal('sqs')" class="bg-aws-orange hover:bg-amber-600 text-black font-semibold text-xs px-4 py-2 rounded shadow flex items-center space-x-1.5">
+              <i class="fa-solid fa-plus"></i>
+              <span>Create queue</span>
+            </button>
+          </div>
         </div>
 
         <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
@@ -328,12 +338,10 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
                 <th class="p-3">Type</th>
                 <th class="p-3">Messages Available</th>
                 <th class="p-3">Queue URL</th>
+                <th class="p-3 text-right">Actions</th>
               </tr>
             </thead>
             <tbody id="sqsTableBody" class="divide-y divide-gray-100">
-              <tr>
-                <td colspan="4" class="p-6 text-center text-gray-400">No queues found. Create one using <code class="text-aws-orange">aws sqs create-queue</code>.</td>
-              </tr>
             </tbody>
           </table>
         </div>
@@ -349,9 +357,16 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
             </h1>
             <p class="text-sm text-gray-500">High-throughput, push-based publish/subscribe messaging service.</p>
           </div>
-          <button onclick="executeAction('sns-create')" class="bg-aws-orange hover:bg-amber-600 text-black font-semibold text-xs px-4 py-2 rounded shadow">
-            <i class="fa-solid fa-plus mr-1"></i>Create topic
-          </button>
+          <div class="flex items-center space-x-2">
+            <button onclick="loadResources()" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold text-xs px-3 py-2 rounded shadow-sm flex items-center space-x-1.5" title="Refresh">
+              <i class="fa-solid fa-rotate"></i>
+              <span>Refresh</span>
+            </button>
+            <button onclick="openCreateModal('sns')" class="bg-aws-orange hover:bg-amber-600 text-black font-semibold text-xs px-4 py-2 rounded shadow flex items-center space-x-1.5">
+              <i class="fa-solid fa-plus"></i>
+              <span>Create topic</span>
+            </button>
+          </div>
         </div>
 
         <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
@@ -361,12 +376,10 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
                 <th class="p-3">Topic Name</th>
                 <th class="p-3">Type</th>
                 <th class="p-3">Topic ARN</th>
+                <th class="p-3 text-right">Actions</th>
               </tr>
             </thead>
             <tbody id="snsTableBody" class="divide-y divide-gray-100 font-mono">
-              <tr>
-                <td colspan="3" class="p-6 text-center text-gray-400 font-sans">No topics found. Create one using <code class="text-aws-orange">aws sns create-topic</code>.</td>
-              </tr>
             </tbody>
           </table>
         </div>
@@ -382,9 +395,16 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
             </h1>
             <p class="text-sm text-gray-500">Managed relational database engines: PostgreSQL, MySQL, MariaDB with automated backups and multi-AZ simulation.</p>
           </div>
-          <button onclick="executeAction('rds-create')" class="bg-aws-orange hover:bg-amber-600 text-black font-semibold text-xs px-4 py-2 rounded shadow">
-            <i class="fa-solid fa-plus mr-1"></i>Create database
-          </button>
+          <div class="flex items-center space-x-2">
+            <button onclick="loadResources()" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold text-xs px-3 py-2 rounded shadow-sm flex items-center space-x-1.5" title="Refresh">
+              <i class="fa-solid fa-rotate"></i>
+              <span>Refresh</span>
+            </button>
+            <button onclick="openCreateModal('rds')" class="bg-aws-orange hover:bg-amber-600 text-black font-semibold text-xs px-4 py-2 rounded shadow flex items-center space-x-1.5">
+              <i class="fa-solid fa-plus"></i>
+              <span>Create database</span>
+            </button>
+          </div>
         </div>
 
         <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
@@ -396,12 +416,10 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
                 <th class="p-3">Class</th>
                 <th class="p-3">Status</th>
                 <th class="p-3">Endpoint & Port</th>
+                <th class="p-3 text-right">Actions</th>
               </tr>
             </thead>
             <tbody id="rdsTableBody" class="divide-y divide-gray-100">
-              <tr>
-                <td colspan="5" class="p-6 text-center text-gray-400">No databases found. Provision one using <code class="text-aws-orange">aws rds create-db-instance</code>.</td>
-              </tr>
             </tbody>
           </table>
         </div>
@@ -417,9 +435,16 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
             </h1>
             <p class="text-sm text-gray-500">Model, provision, and manage AWS resources with Infrastructure as Code (IaC) templates.</p>
           </div>
-          <button onclick="executeAction('cfn-create')" class="bg-aws-orange hover:bg-amber-600 text-black font-semibold text-xs px-4 py-2 rounded shadow">
-            <i class="fa-solid fa-plus mr-1"></i>Create stack
-          </button>
+          <div class="flex items-center space-x-2">
+            <button onclick="loadResources()" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold text-xs px-3 py-2 rounded shadow-sm flex items-center space-x-1.5" title="Refresh">
+              <i class="fa-solid fa-rotate"></i>
+              <span>Refresh</span>
+            </button>
+            <button onclick="openCreateModal('cloudformation')" class="bg-aws-orange hover:bg-amber-600 text-black font-semibold text-xs px-4 py-2 rounded shadow flex items-center space-x-1.5">
+              <i class="fa-solid fa-plus"></i>
+              <span>Create stack</span>
+            </button>
+          </div>
         </div>
 
         <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
@@ -430,12 +455,10 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
                 <th class="p-3">Status</th>
                 <th class="p-3">Created Time</th>
                 <th class="p-3">Stack ID</th>
+                <th class="p-3 text-right">Actions</th>
               </tr>
             </thead>
             <tbody id="cfnTableBody" class="divide-y divide-gray-100 font-mono">
-              <tr>
-                <td colspan="4" class="p-6 text-center text-gray-400 font-sans">No stacks found. Deploy one using <code class="text-aws-orange">aws cloudformation create-stack</code>.</td>
-              </tr>
             </tbody>
           </table>
         </div>
@@ -648,41 +671,84 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
 
       <!-- S3 SERVICE VIEW -->
       <section id="view-s3" class="hidden space-y-6">
-        <div>
-          <h1 class="text-2xl font-bold text-gray-900">Amazon S3 Buckets</h1>
-          <p class="text-sm text-gray-500">Scalable cloud object storage with versioning, policies, and website hosting.</p>
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900 flex items-center space-x-2">
+              <i class="fa-solid fa-bucket text-green-600"></i>
+              <span>Amazon S3 Buckets</span>
+            </h1>
+            <p class="text-sm text-gray-500">Scalable cloud object storage with versioning, policies, and website hosting.</p>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button onclick="loadResources()" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold text-xs px-3 py-2 rounded shadow-sm flex items-center space-x-1.5" title="Refresh">
+              <i class="fa-solid fa-rotate"></i>
+              <span>Refresh</span>
+            </button>
+            <button onclick="openCreateModal('s3')" class="bg-aws-orange hover:bg-amber-600 text-black font-semibold text-xs px-4 py-2 rounded shadow flex items-center space-x-1.5">
+              <i class="fa-solid fa-plus"></i>
+              <span>Create bucket</span>
+            </button>
+          </div>
         </div>
         <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+          <div class="p-3 bg-gray-50 border-b border-gray-200 font-bold text-xs text-gray-700 flex justify-between items-center">
+            <span>Buckets (General purpose)</span>
+            <span class="text-gray-400 font-normal">Region: Global</span>
+          </div>
           <table class="w-full text-left border-collapse text-xs">
-            <thead class="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold uppercase">
+            <thead class="bg-gray-100 border-b border-gray-200 text-gray-500 font-semibold uppercase">
               <tr>
                 <th class="p-3">Bucket Name</th>
                 <th class="p-3">AWS Region</th>
+                <th class="p-3">Access</th>
                 <th class="p-3">Creation Date</th>
+                <th class="p-3 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody id="s3BucketsTable" class="divide-y divide-gray-100"></tbody>
+            <tbody id="s3BucketsTable" class="divide-y divide-gray-100 font-mono">
+            </tbody>
           </table>
         </div>
       </section>
 
       <!-- IAM SERVICE VIEW -->
       <section id="view-iam" class="hidden space-y-6">
-        <div>
-          <h1 class="text-2xl font-bold text-gray-900">Identity and Access Management (IAM)</h1>
-          <p class="text-sm text-gray-500">Manage fine-grained permissions, roles, access keys, and policy evaluation.</p>
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900 flex items-center space-x-2">
+              <i class="fa-solid fa-key text-red-500"></i>
+              <span>Identity and Access Management (IAM)</span>
+            </h1>
+            <p class="text-sm text-gray-500">Manage fine-grained permissions, roles, access keys, and policy evaluation.</p>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button onclick="loadResources()" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold text-xs px-3 py-2 rounded shadow-sm flex items-center space-x-1.5" title="Refresh">
+              <i class="fa-solid fa-rotate"></i>
+              <span>Refresh</span>
+            </button>
+            <button onclick="openCreateModal('iam')" class="bg-aws-orange hover:bg-amber-600 text-black font-semibold text-xs px-4 py-2 rounded shadow flex items-center space-x-1.5">
+              <i class="fa-solid fa-user-plus"></i>
+              <span>Create user</span>
+            </button>
+          </div>
         </div>
         <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+          <div class="p-3 bg-gray-50 border-b border-gray-200 font-bold text-xs text-gray-700 flex justify-between items-center">
+            <span>IAM Users</span>
+            <span class="text-gray-400 font-normal">Account: 000000000000</span>
+          </div>
           <table class="w-full text-left border-collapse text-xs">
-            <thead class="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold uppercase">
+            <thead class="bg-gray-100 border-b border-gray-200 text-gray-500 font-semibold uppercase">
               <tr>
                 <th class="p-3">User Name</th>
                 <th class="p-3">User ARN</th>
                 <th class="p-3">Attached Policies</th>
                 <th class="p-3">Access Keys</th>
+                <th class="p-3 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody id="iamUsersTable" class="divide-y divide-gray-100"></tbody>
+            <tbody id="iamUsersTable" class="divide-y divide-gray-100 font-mono">
+            </tbody>
           </table>
         </div>
       </section>
@@ -761,14 +827,363 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
     </div>
   </div>
 
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toastContainer" class="fixed top-14 right-5 z-50 flex flex-col space-y-2 pointer-events-none"></div>
+
+  <!-- DYNAMIC AWS RESOURCE CREATION MODAL -->
+  <div id="createResourceModal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-lg rounded-lg shadow-2xl overflow-hidden border border-gray-200">
+      <div class="bg-aws-squid text-white px-5 py-3.5 flex items-center justify-between border-b border-gray-700">
+        <h3 class="font-bold text-sm flex items-center space-x-2">
+          <i id="crmIcon" class="fa-solid fa-cube text-aws-orange"></i>
+          <span id="crmTitle">Create AWS Resource</span>
+        </h3>
+        <button onclick="closeModal('createResourceModal')" class="text-gray-400 hover:text-white"><i class="fa-solid fa-times"></i></button>
+      </div>
+      <form id="createResourceForm" onsubmit="handleResourceSubmit(event)" class="p-6 space-y-4 text-xs">
+        <div id="crmFields" class="space-y-4">
+          <!-- Populated per service -->
+        </div>
+        <div class="bg-gray-50 -mx-6 -mb-6 px-6 py-3 border-t border-gray-200 flex items-center justify-between">
+          <span class="text-[11px] text-gray-500 flex items-center space-x-1">
+            <i class="fa-solid fa-shield text-green-600"></i>
+            <span>Simulated IAM Policy & CloudTrail</span>
+          </span>
+          <div class="flex items-center space-x-2">
+            <button type="button" onclick="closeModal('createResourceModal')" class="px-4 py-2 rounded border border-gray-300 text-gray-700 font-semibold hover:bg-gray-100">Cancel</button>
+            <button type="submit" id="crmSubmitBtn" class="bg-aws-orange hover:bg-amber-600 text-black px-4 py-2 rounded font-semibold shadow flex items-center space-x-1.5">
+              <span id="crmSubmitText">Create</span>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script>
     let inspectorEvents = [];
     let currentLang = 'en';
+    let activeModalService = '';
 
     const allViews = [
       'dashboard', 'labs', 'resourcemap', 'inspector', 'quizzes', 'chaos', 'mailbox', 
       's3', 'iam', 'ec2', 'sqs', 'sns', 'rds', 'cloudformation', 'billing'
     ];
+
+    function showToast(title, msg, type = 'success') {
+      const c = document.getElementById('toastContainer');
+      if (!c) return;
+      const t = document.createElement('div');
+      const isErr = type === 'error';
+      t.className = 'pointer-events-auto flex items-start space-x-3 p-3.5 rounded-lg shadow-lg border text-xs max-w-sm transition ' + 
+        (isErr ? 'bg-red-50 border-red-200 text-red-900' : 'bg-emerald-50 border-emerald-200 text-emerald-900');
+      t.innerHTML = 
+        '<i class="fa-solid ' + (isErr ? 'fa-circle-xmark text-red-500' : 'fa-circle-check text-emerald-600') + ' text-base mt-0.5"></i>' +
+        '<div class="flex-1">' +
+          '<p class="font-bold">' + title + '</p>' +
+          '<p class="text-[11px] mt-0.5 opacity-90">' + msg + '</p>' +
+        '</div>' +
+        '<button onclick="this.parentElement.remove()" class="text-gray-400 hover:text-gray-700"><i class="fa-solid fa-times"></i></button>';
+      c.appendChild(t);
+      setTimeout(() => { if (t.parentElement) t.remove(); }, 5000);
+    }
+
+    function openCreateModal(service) {
+      activeModalService = service;
+      const titleEl = document.getElementById('crmTitle');
+      const iconEl = document.getElementById('crmIcon');
+      const btnText = document.getElementById('crmSubmitText');
+      const fields = document.getElementById('crmFields');
+
+      if (service === 's3') {
+        iconEl.className = 'fa-solid fa-bucket text-green-500';
+        titleEl.innerText = 'Create S3 Bucket';
+        btnText.innerText = 'Create bucket';
+        fields.innerHTML = 
+          '<div>' +
+            '<label class="block font-semibold text-gray-700 mb-1">Bucket name <span class="text-red-500">*</span></label>' +
+            '<input type="text" id="crm_s3_name" required pattern="[a-z0-9.-]+" placeholder="e.g. my-learning-data-bucket" class="w-full border border-gray-300 rounded p-2 focus:border-aws-orange focus:outline-none">' +
+            '<p class="text-[10px] text-gray-400 mt-1">Bucket name must be globally unique and contain only lowercase letters, numbers, and hyphens.</p>' +
+          '</div>' +
+          '<div>' +
+            '<label class="block font-semibold text-gray-700 mb-1">AWS Region</label>' +
+            '<select id="crm_s3_region" class="w-full border border-gray-300 rounded p-2 bg-white focus:outline-none">' +
+              '<option value="us-east-1">us-east-1 (US East - N. Virginia)</option>' +
+              '<option value="us-west-2">us-west-2 (US West - Oregon)</option>' +
+              '<option value="eu-west-1">eu-west-1 (Europe - Ireland)</option>' +
+              '<option value="ap-southeast-1">ap-southeast-1 (Asia Pacific - Singapore)</option>' +
+            '</select>' +
+          '</div>' +
+          '<div class="p-3 bg-gray-50 border border-gray-200 rounded">' +
+            '<label class="flex items-center space-x-2 font-semibold text-gray-700">' +
+              '<input type="checkbox" id="crm_s3_bpa" checked class="accent-aws-orange">' +
+              '<span>Block all public access</span>' +
+            '</label>' +
+            '<p class="text-[10px] text-gray-500 mt-1 pl-5">Enforces Amazon S3 security best practices by preventing public ACLs and bucket policies.</p>' +
+          '</div>';
+      } else if (service === 'iam') {
+        iconEl.className = 'fa-solid fa-user-plus text-red-500';
+        titleEl.innerText = 'Create IAM User';
+        btnText.innerText = 'Create user';
+        fields.innerHTML = 
+          '<div>' +
+            '<label class="block font-semibold text-gray-700 mb-1">User name <span class="text-red-500">*</span></label>' +
+            '<input type="text" id="crm_iam_name" required placeholder="e.g. cloud-engineer-alice" class="w-full border border-gray-300 rounded p-2 focus:border-aws-orange focus:outline-none">' +
+            '<p class="text-[10px] text-gray-400 mt-1">Alphanumeric username within account 000000000000.</p>' +
+          '</div>' +
+          '<div>' +
+            '<label class="block font-semibold text-gray-700 mb-1">Attach Permissions Policy</label>' +
+            '<select id="crm_iam_policy" class="w-full border border-gray-300 rounded p-2 bg-white focus:outline-none">' +
+              '<option value="AdministratorAccess">AdministratorAccess (Full AWS administrator privileges)</option>' +
+              '<option value="AmazonS3FullAccess">AmazonS3FullAccess (Full access to all S3 storage)</option>' +
+              '<option value="AmazonEC2FullAccess">AmazonEC2FullAccess (Full compute control over EC2)</option>' +
+              '<option value="ReadOnlyAccess">ReadOnlyAccess (View-only permissions across services)</option>' +
+            '</select>' +
+          '</div>' +
+          '<div class="p-3 bg-gray-50 border border-gray-200 rounded">' +
+            '<label class="flex items-center space-x-2 font-semibold text-gray-700">' +
+              '<input type="checkbox" id="crm_iam_ak" checked class="accent-aws-orange">' +
+              '<span>Provide programmatic access (Access Key & Secret)</span>' +
+            '</label>' +
+            '<p class="text-[10px] text-gray-500 mt-1 pl-5">Enables CLI, SDK, and API call authentication via SigV4.</p>' +
+          '</div>';
+      } else if (service === 'ec2') {
+        iconEl.className = 'fa-solid fa-server text-orange-500';
+        titleEl.innerText = 'Launch an Instance';
+        btnText.innerText = 'Launch instance';
+        fields.innerHTML = 
+          '<div>' +
+            '<label class="block font-semibold text-gray-700 mb-1">Name and tags</label>' +
+            '<input type="text" id="crm_ec2_name" placeholder="e.g. AppServer-Production" class="w-full border border-gray-300 rounded p-2 focus:border-aws-orange focus:outline-none">' +
+          '</div>' +
+          '<div>' +
+            '<label class="block font-semibold text-gray-700 mb-1">Amazon Machine Image (AMI)</label>' +
+            '<select id="crm_ec2_ami" class="w-full border border-gray-300 rounded p-2 bg-white focus:outline-none">' +
+              '<option value="ami-0c55b159cbfafe1f0">Amazon Linux 2023 AMI (Recommended)</option>' +
+              '<option value="ami-053b0d53c279acc90">Ubuntu Server 22.04 LTS (HVM)</option>' +
+              '<option value="ami-022e1a32d3f742bd8">Alpine Linux 3.19 (Minimal)</option>' +
+            '</select>' +
+          '</div>' +
+          '<div>' +
+            '<label class="block font-semibold text-gray-700 mb-1">Instance type</label>' +
+            '<select id="crm_ec2_type" class="w-full border border-gray-300 rounded p-2 bg-white focus:outline-none">' +
+              '<option value="t3.micro">t3.micro — 2 vCPU, 1 GiB Memory (Free tier eligible)</option>' +
+              '<option value="t3.small">t3.small — 2 vCPU, 2 GiB Memory</option>' +
+              '<option value="t3.medium">t3.medium — 2 vCPU, 4 GiB Memory</option>' +
+            '</select>' +
+          '</div>' +
+          '<div>' +
+            '<label class="block font-semibold text-gray-700 mb-1">Key pair (login)</label>' +
+            '<select id="crm_ec2_key" class="w-full border border-gray-300 rounded p-2 bg-white focus:outline-none">' +
+              '<option value="localcloud-default-key">localcloud-default-key.pem (Pre-configured)</option>' +
+              '<option value="">Proceed without a key pair</option>' +
+            '</select>' +
+          '</div>';
+      } else if (service === 'sqs') {
+        iconEl.className = 'fa-solid fa-envelope-open-text text-pink-500';
+        titleEl.innerText = 'Create SQS Queue';
+        btnText.innerText = 'Create queue';
+        fields.innerHTML = 
+          '<div>' +
+            '<label class="block font-semibold text-gray-700 mb-1">Queue Name <span class="text-red-500">*</span></label>' +
+            '<input type="text" id="crm_sqs_name" required placeholder="e.g. order-processing-queue" class="w-full border border-gray-300 rounded p-2 focus:border-aws-orange focus:outline-none">' +
+          '</div>' +
+          '<div>' +
+            '<label class="block font-semibold text-gray-700 mb-1">Type</label>' +
+            '<select id="crm_sqs_type" class="w-full border border-gray-300 rounded p-2 bg-white focus:outline-none">' +
+              '<option value="standard">Standard (Unlimited Throughput, At-Least-Once Delivery)</option>' +
+              '<option value="fifo">FIFO (First-In-First-Out, Exactly-Once Processing)</option>' +
+            '</select>' +
+          '</div>' +
+          '<div>' +
+            '<label class="block font-semibold text-gray-700 mb-1">Visibility Timeout (Seconds)</label>' +
+            '<input type="number" id="crm_sqs_vt" value="30" min="0" max="43200" class="w-full border border-gray-300 rounded p-2 focus:border-aws-orange focus:outline-none">' +
+          '</div>';
+      } else if (service === 'sns') {
+        iconEl.className = 'fa-solid fa-bullhorn text-rose-500';
+        titleEl.innerText = 'Create SNS Topic';
+        btnText.innerText = 'Create topic';
+        fields.innerHTML = 
+          '<div>' +
+            '<label class="block font-semibold text-gray-700 mb-1">Topic Name <span class="text-red-500">*</span></label>' +
+            '<input type="text" id="crm_sns_name" required placeholder="e.g. user-notifications-topic" class="w-full border border-gray-300 rounded p-2 focus:border-aws-orange focus:outline-none">' +
+          '</div>' +
+          '<div>' +
+            '<label class="block font-semibold text-gray-700 mb-1">Type</label>' +
+            '<select id="crm_sns_type" class="w-full border border-gray-300 rounded p-2 bg-white focus:outline-none">' +
+              '<option value="standard">Standard (Best-effort ordering, maximum throughput)</option>' +
+              '<option value="fifo">FIFO (Strict message ordering, deduplication)</option>' +
+            '</select>' +
+          '</div>' +
+          '<div>' +
+            '<label class="block font-semibold text-gray-700 mb-1">Display Name</label>' +
+            '<input type="text" id="crm_sns_display" placeholder="LocalCloud Alerts" class="w-full border border-gray-300 rounded p-2 focus:border-aws-orange focus:outline-none">' +
+          '</div>';
+      } else if (service === 'rds') {
+        iconEl.className = 'fa-solid fa-database text-blue-500';
+        titleEl.innerText = 'Create RDS Database';
+        btnText.innerText = 'Create database';
+        fields.innerHTML = 
+          '<div>' +
+            '<label class="block font-semibold text-gray-700 mb-1">DB Instance Identifier <span class="text-red-500">*</span></label>' +
+            '<input type="text" id="crm_rds_id" required placeholder="e.g. production-postgres-db" class="w-full border border-gray-300 rounded p-2 focus:border-aws-orange focus:outline-none">' +
+          '</div>' +
+          '<div>' +
+            '<label class="block font-semibold text-gray-700 mb-1">Engine Type</label>' +
+            '<select id="crm_rds_engine" class="w-full border border-gray-300 rounded p-2 bg-white focus:outline-none">' +
+              '<option value="postgres">PostgreSQL 16</option>' +
+              '<option value="mysql">MySQL 8.0</option>' +
+              '<option value="mariadb">MariaDB 10.11</option>' +
+            '</select>' +
+          '</div>' +
+          '<div>' +
+            '<label class="block font-semibold text-gray-700 mb-1">DB Instance Class</label>' +
+            '<select id="crm_rds_class" class="w-full border border-gray-300 rounded p-2 bg-white focus:outline-none">' +
+              '<option value="db.t3.micro">db.t3.micro — 2 vCPU, 1 GiB RAM (Free tier eligible)</option>' +
+              '<option value="db.t3.small">db.t3.small — 2 vCPU, 2 GiB RAM</option>' +
+            '</select>' +
+          '</div>';
+      } else if (service === 'cloudformation') {
+        iconEl.className = 'fa-solid fa-layer-group text-orange-600';
+        titleEl.innerText = 'Create CloudFormation Stack';
+        btnText.innerText = 'Create stack';
+        fields.innerHTML = 
+          '<div>' +
+            '<label class="block font-semibold text-gray-700 mb-1">Stack Name <span class="text-red-500">*</span></label>' +
+            '<input type="text" id="crm_cfn_name" required placeholder="e.g. core-infrastructure-stack" class="w-full border border-gray-300 rounded p-2 focus:border-aws-orange focus:outline-none">' +
+          '</div>' +
+          '<div>' +
+            '<label class="block font-semibold text-gray-700 mb-1">Template Blueprint (IaC)</label>' +
+            '<select id="crm_cfn_template" class="w-full border border-gray-300 rounded p-2 bg-white focus:outline-none">' +
+              '<option value="vpc-s3">Production VPC + 2 Subnets + S3 Storage Bucket</option>' +
+              '<option value="ec2-sqs">EC2 Web Worker Service with SQS Dead-Letter Queue</option>' +
+              '<option value="serverless">Serverless Microservice (Lambda Function + DynamoDB Table)</option>' +
+            '</select>' +
+          '</div>';
+      }
+
+      openModal('createResourceModal');
+    }
+
+    function handleResourceSubmit(e) {
+      e.preventDefault();
+      const svc = activeModalService;
+      let p;
+
+      if (svc === 's3') {
+        const name = document.getElementById('crm_s3_name').value.trim().toLowerCase();
+        p = fetch('/' + encodeURIComponent(name), { method: 'PUT' })
+          .then(() => showToast('Bucket Created', 'Amazon S3 bucket "' + name + '" is ready.'));
+      } else if (svc === 'iam') {
+        const name = document.getElementById('crm_iam_name').value.trim();
+        p = fetch('/', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+          body: 'Action=CreateUser&UserName=' + encodeURIComponent(name)
+        }).then(() => showToast('IAM User Created', 'User "' + name + '" with AdministratorAccess created.'));
+      } else if (svc === 'ec2') {
+        const ami = document.getElementById('crm_ec2_ami').value;
+        const itype = document.getElementById('crm_ec2_type').value;
+        p = fetch('/', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+          body: 'Action=RunInstances&ImageId=' + encodeURIComponent(ami) + '&InstanceType=' + encodeURIComponent(itype) + '&MinCount=1&MaxCount=1'
+        }).then(() => showToast('Instance Launched', 'Amazon EC2 ' + itype + ' instance is running.'));
+      } else if (svc === 'sqs') {
+        const name = document.getElementById('crm_sqs_name').value.trim();
+        p = fetch('/', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+          body: 'Action=CreateQueue&QueueName=' + encodeURIComponent(name)
+        }).then(() => showToast('SQS Queue Created', 'Queue "' + name + '" is available.'));
+      } else if (svc === 'sns') {
+        const name = document.getElementById('crm_sns_name').value.trim();
+        p = fetch('/', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+          body: 'Action=CreateTopic&Name=' + encodeURIComponent(name)
+        }).then(() => showToast('SNS Topic Created', 'Topic "' + name + '" is active.'));
+      } else if (svc === 'rds') {
+        const id = document.getElementById('crm_rds_id').value.trim();
+        const engine = document.getElementById('crm_rds_engine').value;
+        const cls = document.getElementById('crm_rds_class').value;
+        p = fetch('/', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+          body: 'Action=CreateDBInstance&DBInstanceIdentifier=' + encodeURIComponent(id) + '&DBInstanceClass=' + encodeURIComponent(cls) + '&Engine=' + encodeURIComponent(engine)
+        }).then(() => showToast('RDS Database Provisioned', 'Database "' + id + '" (' + engine + ') is available.'));
+      } else if (svc === 'cloudformation') {
+        const name = document.getElementById('crm_cfn_name').value.trim();
+        p = fetch('/', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+          body: 'Action=CreateStack&StackName=' + encodeURIComponent(name)
+        }).then(() => showToast('Stack Created', 'CloudFormation stack "' + name + '" deployed successfully.'));
+      }
+
+      if (p) {
+        p.then(() => {
+          closeModal('createResourceModal');
+          loadResources();
+        }).catch(err => {
+          showToast('Error', err.message || 'Operation failed', 'error');
+        });
+      }
+    }
+
+    function deleteResource(service, id) {
+      if (!confirm('Are you sure you want to delete/terminate this ' + service.toUpperCase() + ' resource (' + id + ')?')) return;
+
+      let p;
+      if (service === 's3') {
+        p = fetch('/' + encodeURIComponent(id), { method: 'DELETE' });
+      } else if (service === 'iam') {
+        p = fetch('/', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+          body: 'Action=DeleteUser&UserName=' + encodeURIComponent(id)
+        });
+      } else if (service === 'ec2') {
+        p = fetch('/', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+          body: 'Action=TerminateInstances&InstanceId.1=' + encodeURIComponent(id)
+        });
+      } else if (service === 'sqs') {
+        p = fetch('/', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+          body: 'Action=DeleteQueue&QueueUrl=http://localhost:4566/000000000000/' + encodeURIComponent(id)
+        });
+      } else if (service === 'sns') {
+        p = fetch('/', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+          body: 'Action=DeleteTopic&TopicArn=' + encodeURIComponent(id)
+        });
+      } else if (service === 'rds') {
+        p = fetch('/', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+          body: 'Action=DeleteDBInstance&DBInstanceIdentifier=' + encodeURIComponent(id)
+        });
+      } else if (service === 'cloudformation') {
+        p = fetch('/', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+          body: 'Action=DeleteStack&StackName=' + encodeURIComponent(id)
+        });
+      }
+
+      if (p) {
+        p.then(() => {
+          showToast('Deleted', service.toUpperCase() + ' resource removed successfully.');
+          loadResources();
+        }).catch(err => {
+          showToast('Error', err.message || 'Failed to delete', 'error');
+        });
+      }
+    }
 
     function showView(viewName) {
       allViews.forEach(function(v) {
@@ -796,9 +1211,9 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
         .then(function(data) {
           // 1. EC2
           const ec2Tbody = document.getElementById('ec2TableBody');
-          if (ec2Tbody && data.ec2) {
-            if (data.ec2.length === 0) {
-              ec2Tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-gray-400 font-sans">No instances found. Launch one using <code class="text-aws-orange">aws ec2 run-instances</code>.</td></tr>';
+          if (ec2Tbody) {
+            if (!data.ec2 || data.ec2.length === 0) {
+              ec2Tbody.innerHTML = '<tr><td colspan="7" class="p-8 text-center text-gray-500 font-sans"><div class="max-w-md mx-auto space-y-3"><i class="fa-solid fa-server text-gray-300 text-4xl"></i><p class="font-semibold text-gray-800 text-sm">No instances found in us-east-1</p><p class="text-xs text-gray-500">Amazon EC2 allows you to launch virtual server instances in seconds using AMIs.</p><button onclick="openCreateModal(\'ec2\')" class="bg-aws-orange hover:bg-amber-600 text-black font-semibold text-xs px-4 py-2 rounded shadow inline-flex items-center space-x-1.5"><i class="fa-solid fa-plus"></i><span>Launch instance</span></button></div></td></tr>';
             } else {
               ec2Tbody.innerHTML = '';
               data.ec2.forEach(function(inst) {
@@ -809,7 +1224,8 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
                   '<td class="p-3"><span class="bg-green-100 text-green-800 px-2 py-0.5 rounded text-[10px] font-bold uppercase">' + inst.state + '</span></td>' +
                   '<td class="p-3">' + inst.public_ip + '</td>' +
                   '<td class="p-3">' + inst.private_ip + '</td>' +
-                  '<td class="p-3 text-gray-500">' + inst.vpc_id + ' / ' + inst.subnet_id + '</td>';
+                  '<td class="p-3 text-gray-500">' + inst.vpc_id + ' / ' + inst.subnet_id + '</td>' +
+                  '<td class="p-3 text-right"><button onclick="deleteResource(\'ec2\', \'' + inst.instance_id + '\')" class="text-red-500 hover:text-red-700 p-1" title="Terminate instance"><i class="fa-solid fa-power-off"></i></button></td>';
                 ec2Tbody.appendChild(tr);
               });
             }
@@ -817,9 +1233,9 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
 
           // 2. SQS
           const sqsTbody = document.getElementById('sqsTableBody');
-          if (sqsTbody && data.sqs) {
-            if (data.sqs.length === 0) {
-              sqsTbody.innerHTML = '<tr><td colspan="4" class="p-6 text-center text-gray-400">No queues found. Create one using <code class="text-aws-orange">aws sqs create-queue</code>.</td></tr>';
+          if (sqsTbody) {
+            if (!data.sqs || data.sqs.length === 0) {
+              sqsTbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-gray-500 font-sans"><div class="max-w-md mx-auto space-y-3"><i class="fa-solid fa-envelope-open-text text-gray-300 text-4xl"></i><p class="font-semibold text-gray-800 text-sm">No Amazon SQS queues</p><p class="text-xs text-gray-500">Amazon SQS offers a secure, durable, and available hosted queue that lets you decouple distributed systems.</p><button onclick="openCreateModal(\'sqs\')" class="bg-aws-orange hover:bg-amber-600 text-black font-semibold text-xs px-4 py-2 rounded shadow inline-flex items-center space-x-1.5"><i class="fa-solid fa-plus"></i><span>Create queue</span></button></div></td></tr>';
             } else {
               sqsTbody.innerHTML = '';
               data.sqs.forEach(function(q) {
@@ -828,7 +1244,8 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
                   '<td class="p-3 font-bold text-gray-900">' + q.name + '</td>' +
                   '<td class="p-3"><span class="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-[10px] font-mono">Standard</span></td>' +
                   '<td class="p-3 font-mono font-bold text-purple-700">' + (q.messages ? q.messages.length : 0) + '</td>' +
-                  '<td class="p-3 font-mono text-[11px] text-gray-500">' + q.url + '</td>';
+                  '<td class="p-3 font-mono text-[11px] text-gray-500">' + q.url + '</td>' +
+                  '<td class="p-3 text-right"><button onclick="deleteResource(\'sqs\', \'' + q.name + '\')" class="text-red-500 hover:text-red-700 p-1" title="Delete queue"><i class="fa-solid fa-trash"></i></button></td>';
                 sqsTbody.appendChild(tr);
               });
             }
@@ -836,9 +1253,9 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
 
           // 3. SNS
           const snsTbody = document.getElementById('snsTableBody');
-          if (snsTbody && data.sns) {
-            if (data.sns.length === 0) {
-              snsTbody.innerHTML = '<tr><td colspan="3" class="p-6 text-center text-gray-400 font-sans">No topics found. Create one using <code class="text-aws-orange">aws sns create-topic</code>.</td></tr>';
+          if (snsTbody) {
+            if (!data.sns || data.sns.length === 0) {
+              snsTbody.innerHTML = '<tr><td colspan="4" class="p-8 text-center text-gray-500 font-sans"><div class="max-w-md mx-auto space-y-3"><i class="fa-solid fa-bullhorn text-gray-300 text-4xl"></i><p class="font-semibold text-gray-800 text-sm">No Amazon SNS topics</p><p class="text-xs text-gray-500">Amazon SNS provides high-throughput push messaging from publishers to subscribers.</p><button onclick="openCreateModal(\'sns\')" class="bg-aws-orange hover:bg-amber-600 text-black font-semibold text-xs px-4 py-2 rounded shadow inline-flex items-center space-x-1.5"><i class="fa-solid fa-plus"></i><span>Create topic</span></button></div></td></tr>';
             } else {
               snsTbody.innerHTML = '';
               data.sns.forEach(function(t) {
@@ -846,7 +1263,8 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
                 tr.innerHTML = 
                   '<td class="p-3 font-bold text-gray-900 font-sans">' + t.name + '</td>' +
                   '<td class="p-3 font-sans"><span class="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-[10px] font-mono">Standard</span></td>' +
-                  '<td class="p-3 text-gray-500 text-[11px]">' + t.arn + '</td>';
+                  '<td class="p-3 text-gray-500 text-[11px]">' + t.arn + '</td>' +
+                  '<td class="p-3 text-right"><button onclick="deleteResource(\'sns\', \'' + t.arn + '\')" class="text-red-500 hover:text-red-700 p-1" title="Delete topic"><i class="fa-solid fa-trash"></i></button></td>';
                 snsTbody.appendChild(tr);
               });
             }
@@ -854,9 +1272,9 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
 
           // 4. RDS
           const rdsTbody = document.getElementById('rdsTableBody');
-          if (rdsTbody && data.rds) {
-            if (data.rds.length === 0) {
-              rdsTbody.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-gray-400">No databases found. Provision one using <code class="text-aws-orange">aws rds create-db-instance</code>.</td></tr>';
+          if (rdsTbody) {
+            if (!data.rds || data.rds.length === 0) {
+              rdsTbody.innerHTML = '<tr><td colspan="6" class="p-8 text-center text-gray-500 font-sans"><div class="max-w-md mx-auto space-y-3"><i class="fa-solid fa-database text-gray-300 text-4xl"></i><p class="font-semibold text-gray-800 text-sm">No RDS databases found</p><p class="text-xs text-gray-500">Amazon Relational Database Service (RDS) makes it easy to set up and operate relational databases in the cloud.</p><button onclick="openCreateModal(\'rds\')" class="bg-aws-orange hover:bg-amber-600 text-black font-semibold text-xs px-4 py-2 rounded shadow inline-flex items-center space-x-1.5"><i class="fa-solid fa-plus"></i><span>Create database</span></button></div></td></tr>';
             } else {
               rdsTbody.innerHTML = '';
               data.rds.forEach(function(db) {
@@ -866,7 +1284,8 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
                   '<td class="p-3 uppercase font-semibold text-gray-700">' + db.engine + '</td>' +
                   '<td class="p-3 font-mono">' + db.class + '</td>' +
                   '<td class="p-3"><span class="bg-green-100 text-green-800 px-2 py-0.5 rounded text-[10px] font-bold uppercase">' + db.status + '</span></td>' +
-                  '<td class="p-3 font-mono text-[11px] text-gray-600">' + db.endpoint + ':' + db.port + '</td>';
+                  '<td class="p-3 font-mono text-[11px] text-gray-600">' + db.endpoint + ':' + db.port + '</td>' +
+                  '<td class="p-3 text-right"><button onclick="deleteResource(\'rds\', \'' + db.identifier + '\')" class="text-red-500 hover:text-red-700 p-1" title="Delete database"><i class="fa-solid fa-trash"></i></button></td>';
                 rdsTbody.appendChild(tr);
               });
             }
@@ -874,9 +1293,9 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
 
           // 5. CloudFormation
           const cfnTbody = document.getElementById('cfnTableBody');
-          if (cfnTbody && data.cloudformation) {
-            if (data.cloudformation.length === 0) {
-              cfnTbody.innerHTML = '<tr><td colspan="4" class="p-6 text-center text-gray-400 font-sans">No stacks found. Deploy one using <code class="text-aws-orange">aws cloudformation create-stack</code>.</td></tr>';
+          if (cfnTbody) {
+            if (!data.cloudformation || data.cloudformation.length === 0) {
+              cfnTbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-gray-500 font-sans"><div class="max-w-md mx-auto space-y-3"><i class="fa-solid fa-layer-group text-gray-300 text-4xl"></i><p class="font-semibold text-gray-800 text-sm">No CloudFormation stacks</p><p class="text-xs text-gray-500">AWS CloudFormation lets you model, provision, and manage AWS resources as code.</p><button onclick="openCreateModal(\'cloudformation\')" class="bg-aws-orange hover:bg-amber-600 text-black font-semibold text-xs px-4 py-2 rounded shadow inline-flex items-center space-x-1.5"><i class="fa-solid fa-plus"></i><span>Create stack</span></button></div></td></tr>';
             } else {
               cfnTbody.innerHTML = '';
               data.cloudformation.forEach(function(stk) {
@@ -885,7 +1304,8 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
                   '<td class="p-3 font-bold text-gray-900 font-sans">' + stk.name + '</td>' +
                   '<td class="p-3 font-sans"><span class="bg-green-100 text-green-800 px-2 py-0.5 rounded text-[10px] font-bold uppercase">' + stk.status + '</span></td>' +
                   '<td class="p-3 text-gray-500 font-sans">' + stk.created_time.slice(0, 19).replace('T', ' ') + '</td>' +
-                  '<td class="p-3 text-gray-400 text-[11px]">' + stk.id + '</td>';
+                  '<td class="p-3 text-gray-400 text-[11px]">' + stk.id + '</td>' +
+                  '<td class="p-3 text-right"><button onclick="deleteResource(\'cloudformation\', \'' + stk.name + '\')" class="text-red-500 hover:text-red-700 p-1" title="Delete stack"><i class="fa-solid fa-trash"></i></button></td>';
                 cfnTbody.appendChild(tr);
               });
             }
@@ -893,83 +1313,52 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
 
           // 6. S3
           const s3Tbody = document.getElementById('s3BucketsTable');
-          if (s3Tbody && data.s3) {
-            s3Tbody.innerHTML = '';
-            data.s3.forEach(function(b) {
-              const tr = document.createElement('tr');
-              tr.innerHTML = 
-                '<td class="p-3 font-semibold text-gray-900 flex items-center space-x-2">' +
-                  '<i class="fa-solid fa-bucket text-green-600"></i>' +
-                  '<span>' + b.name + '</span>' +
-                '</td>' +
-                '<td class="p-3 text-gray-500 font-mono">us-east-1</td>' +
-                '<td class="p-3 text-gray-500">' + b.creation_date.slice(0, 10) + '</td>';
-              s3Tbody.appendChild(tr);
-            });
+          if (s3Tbody) {
+            if (!data.s3 || data.s3.length === 0) {
+              s3Tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-gray-500 font-sans"><div class="max-w-md mx-auto space-y-3"><i class="fa-solid fa-bucket text-gray-300 text-4xl"></i><p class="font-semibold text-gray-800 text-sm">No Amazon S3 buckets found</p><p class="text-xs text-gray-500">Buckets are containers for data stored in Amazon S3. Create your first bucket to begin storing objects.</p><button onclick="openCreateModal(\'s3\')" class="bg-aws-orange hover:bg-amber-600 text-black font-semibold text-xs px-4 py-2 rounded shadow inline-flex items-center space-x-1.5"><i class="fa-solid fa-plus"></i><span>Create bucket</span></button></div></td></tr>';
+            } else {
+              s3Tbody.innerHTML = '';
+              data.s3.forEach(function(b) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = 
+                  '<td class="p-3 font-semibold text-gray-900 flex items-center space-x-2">' +
+                    '<i class="fa-solid fa-bucket text-green-600"></i>' +
+                    '<span class="hover:text-blue-600 cursor-pointer font-sans">' + b.name + '</span>' +
+                  '</td>' +
+                  '<td class="p-3 text-gray-500 font-mono">us-east-1</td>' +
+                  '<td class="p-3 text-gray-700 font-sans"><span class="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-medium border border-emerald-200">Bucket and objects not public</span></td>' +
+                  '<td class="p-3 text-gray-500 font-sans">' + b.creation_date.slice(0, 10) + '</td>' +
+                  '<td class="p-3 text-right"><button onclick="deleteResource(\'s3\', \'' + b.name + '\')" class="text-red-500 hover:text-red-700 p-1" title="Delete bucket"><i class="fa-solid fa-trash"></i></button></td>';
+                s3Tbody.appendChild(tr);
+              });
+            }
           }
 
           // 7. IAM
           const iamTbody = document.getElementById('iamUsersTable');
-          if (iamTbody && data.iam) {
-            iamTbody.innerHTML = '';
-            for (let name in data.iam) {
-              const u = data.iam[name];
-              const tr = document.createElement('tr');
-              tr.innerHTML = 
-                '<td class="p-3 font-semibold text-gray-900 flex items-center space-x-2">' +
-                  '<i class="fa-solid fa-user text-gray-500"></i>' +
-                  '<span>' + u.user_name + '</span>' +
-                '</td>' +
-                '<td class="p-3 font-mono text-gray-600 text-[11px]">' + u.arn + '</td>' +
-                '<td class="p-3"><span class="bg-green-100 text-green-800 px-2 py-0.5 rounded font-mono text-[10px]">AdministratorAccess (*)</span></td>' +
-                '<td class="p-3 font-mono text-[11px]">' + u.user_id + '</td>';
-              iamTbody.appendChild(tr);
+          if (iamTbody) {
+            const userKeys = data.iam ? Object.keys(data.iam) : [];
+            if (userKeys.length === 0) {
+              iamTbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-gray-500 font-sans"><div class="max-w-md mx-auto space-y-3"><i class="fa-solid fa-users text-gray-300 text-4xl"></i><p class="font-semibold text-gray-800 text-sm">No IAM users found</p><p class="text-xs text-gray-500">AWS Identity and Access Management provides fine-grained access control across LocalCloud. Create users and assign policies.</p><button onclick="openCreateModal(\'iam\')" class="bg-aws-orange hover:bg-amber-600 text-black font-semibold text-xs px-4 py-2 rounded shadow inline-flex items-center space-x-1.5"><i class="fa-solid fa-user-plus"></i><span>Create user</span></button></div></td></tr>';
+            } else {
+              iamTbody.innerHTML = '';
+              userKeys.forEach(function(name) {
+                const u = data.iam[name];
+                const tr = document.createElement('tr');
+                tr.innerHTML = 
+                  '<td class="p-3 font-semibold text-gray-900 flex items-center space-x-2">' +
+                    '<i class="fa-solid fa-user text-gray-500"></i>' +
+                    '<span class="font-sans">' + u.user_name + '</span>' +
+                  '</td>' +
+                  '<td class="p-3 font-mono text-gray-600 text-[11px]">' + u.arn + '</td>' +
+                  '<td class="p-3 font-sans"><span class="bg-green-100 text-green-800 px-2 py-0.5 rounded font-mono text-[10px]">AdministratorAccess (*)</span></td>' +
+                  '<td class="p-3 font-mono text-[11px]">' + u.user_id + '</td>' +
+                  '<td class="p-3 text-right"><button onclick="deleteResource(\'iam\', \'' + u.user_name + '\')" class="text-red-500 hover:text-red-700 p-1" title="Delete user"><i class="fa-solid fa-trash"></i></button></td>';
+                iamTbody.appendChild(tr);
+              });
             }
           }
         });
-    }
-
-    function executeAction(act) {
-      if (act === 'ec2-launch') {
-        const id = 'i-' + Math.random().toString(16).slice(2, 10);
-        alert('To launch an EC2 instance, run in terminal:\n\naws --endpoint-url http://localhost:4566 ec2 run-instances --image-id ami-0c55b159cbfafe1f0 --instance-type t3.micro');
-      } else if (act === 'sqs-create') {
-        const qName = prompt('Enter SQS Queue Name:', 'my-order-queue');
-        if (qName) {
-          fetch('http://localhost:4566', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-            body: 'Action=CreateQueue&QueueName=' + encodeURIComponent(qName)
-          }).then(function() { loadResources(); });
-        }
-      } else if (act === 'sns-create') {
-        const tName = prompt('Enter SNS Topic Name:', 'my-notifications');
-        if (tName) {
-          fetch('http://localhost:4566', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-            body: 'Action=CreateTopic&Name=' + encodeURIComponent(tName)
-          }).then(function() { loadResources(); });
-        }
-      } else if (act === 'rds-create') {
-        const dbId = prompt('Enter DB Instance Identifier:', 'app-db');
-        if (dbId) {
-          fetch('http://localhost:4566', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-            body: 'Action=CreateDBInstance&DBInstanceIdentifier=' + encodeURIComponent(dbId) + '&DBInstanceClass=db.t3.micro&Engine=postgres'
-          }).then(function() { loadResources(); });
-        }
-      } else if (act === 'cfn-create') {
-        const sName = prompt('Enter CloudFormation Stack Name:', 'web-app-stack');
-        if (sName) {
-          fetch('http://localhost:4566', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-            body: 'Action=CreateStack&StackName=' + encodeURIComponent(sName)
-          }).then(function() { loadResources(); });
-        }
-      }
     }
 
     function toggleLanguage() {
