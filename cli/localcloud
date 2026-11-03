@@ -23,25 +23,36 @@ function build_if_needed() {
   fi
 }
 
+function is_running() {
+  if curl -s -m 1 http://127.0.0.1:4566/api/stats >/dev/null 2>&1; then
+    return 0
+  fi
+  return 1
+}
+
 case "$1" in
   start)
     build_if_needed
     mkdir -p "$DATA_DIR"
-    if [ -f "$PID_FILE" ] && kill -0 $(cat "$PID_FILE") 2>/dev/null; then
-      echo "LocalCloud is already running on PID $(cat "$PID_FILE")"
+    if is_running; then
+      echo "LocalCloud is ALREADY RUNNING on port 4566!"
+      echo "  • AWS API Endpoint:        http://127.0.0.1:4566"
+      echo "  • Web Management Console:   http://127.0.0.1:4566/console"
+      echo "  • Live API Inspector:      http://127.0.0.1:4566/api/stream/inspector"
       exit 0
     fi
     echo "Starting LocalCloud gateway on port 4566..."
     export LOCALCLOUD_DATA_DIR="$DATA_DIR"
-    nohup "$BIN" > "$DATA_DIR/gateway.log" 2>&1 &
+    nohup "$BIN" </dev/null > "$DATA_DIR/gateway.log" 2>&1 &
     PID=$!
+    disown $PID 2>/dev/null || true
     echo $PID > "$PID_FILE"
     sleep 1
-    if kill -0 $PID 2>/dev/null; then
-      echo "LocalCloud started successfully (PID: $PID)!"
-      echo "  • AWS API Endpoint:       http://127.0.0.1:4566"
-      echo "  • Web Management Console:  http://127.0.0.1:4566/console"
-      echo "  • Live API Inspector:     http://127.0.0.1:4566/api/stream/inspector"
+    if is_running; then
+      echo "LocalCloud started successfully!"
+      echo "  • AWS API Endpoint:        http://127.0.0.1:4566"
+      echo "  • Web Management Console:   http://127.0.0.1:4566/console"
+      echo "  • Live API Inspector:      http://127.0.0.1:4566/api/stream/inspector"
       echo ""
       echo "AWS CLI Usage:"
       echo "  aws --endpoint-url http://localhost:4566 sts get-caller-identity"
@@ -52,25 +63,16 @@ case "$1" in
     ;;
 
   stop)
-    if [ -f "$PID_FILE" ]; then
-      PID=$(cat "$PID_FILE")
-      if kill -0 $PID 2>/dev/null; then
-        echo "Stopping LocalCloud (PID: $PID)..."
-        kill -15 $PID
-        rm -f "$PID_FILE"
-        echo "LocalCloud stopped."
-      else
-        echo "LocalCloud is not running (stale PID file removed)."
-        rm -f "$PID_FILE"
-      fi
-    else
-      echo "LocalCloud is not running."
-    fi
+    echo "Stopping LocalCloud on port 4566..."
+    fuser -k 4566/tcp 2>/dev/null || true
+    pkill -f localcloud-gateway 2>/dev/null || true
+    rm -f "$PID_FILE"
+    echo "LocalCloud stopped."
     ;;
 
   status)
-    if [ -f "$PID_FILE" ] && kill -0 $(cat "$PID_FILE") 2>/dev/null; then
-      echo "LocalCloud is RUNNING (PID $(cat "$PID_FILE")) on port 4566"
+    if is_running; then
+      echo "LocalCloud is RUNNING on port 4566"
       curl -s http://127.0.0.1:4566/api/stats | python3 -m json.tool 2>/dev/null || true
     else
       echo "LocalCloud is STOPPED"
@@ -79,7 +81,7 @@ case "$1" in
 
   reset)
     echo "Resetting LocalCloud state..."
-    if [ -f "$PID_FILE" ] && kill -0 $(cat "$PID_FILE") 2>/dev/null; then
+    if is_running; then
       curl -s -X POST http://127.0.0.1:4566/api/reset > /dev/null || true
     fi
     rm -rf "$DATA_DIR/s3" "$DATA_DIR/cloudtrail"
