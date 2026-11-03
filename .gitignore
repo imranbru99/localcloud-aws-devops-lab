@@ -1,0 +1,6 @@
+bin/
+data/s3/*
+data/cloudtrail/*
+data/*.log
+data/*.pid
+!data/.gitkeep

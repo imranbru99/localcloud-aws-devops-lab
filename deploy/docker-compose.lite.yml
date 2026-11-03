@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  localcloud:
+    image: golang:1.23-alpine
+    container_name: localcloud
+    working_dir: /app
+    volumes:
+      - ..:/app
+      - localcloud_data:/app/data
+    ports:
+      - "4566:4566"
+    environment:
+      - LOCALCLOUD_PORT=4566
+      - LOCALCLOUD_DATA_DIR=/app/data
+    command: sh -c "go run gateway/cmd/gateway/main.go"
+    restart: unless-stopped
+
+volumes:
+  localcloud_data:

@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AWS Management Console | LocalCloud</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --aws-squid: #161e2d;
+      --aws-header: #232f3e;
+      --aws-orange: #ff9900;
+      --aws-blue: #0073bb;
+      --aws-hover: #2a3a4d;
+      --aws-light: #f2f3f3;
+    }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    .bg-aws-squid { background-color: var(--aws-squid); }
+    .bg-aws-header { background-color: var(--aws-header); }
+    .text-aws-orange { color: var(--aws-orange); }
+    .bg-aws-orange { background-color: var(--aws-orange); }
+    .hover-aws:hover { background-color: var(--aws-hover); }
+  </style>
+</head>
+<body class="bg-gray-100 text-gray-800 h-screen flex flex-col overflow-hidden">
+
+  <!-- TOP AWS CONSOLE HEADER -->
+  <header class="bg-aws-squid text-white h-11 flex items-center justify-between px-3 select-none z-30 shadow">
+    <div class="flex items-center space-x-3">
+      <!-- AWS Logo / Brand -->
+      <a href="javascript:showView('dashboard')" class="flex items-center space-x-1.5 font-bold tracking-tight text-white hover:text-aws-orange transition">
+        <i class="fa-solid fa-cube text-aws-orange text-lg"></i>
+        <span class="text-sm font-semibold tracking-wide">LocalCloud</span>
+        <span class="text-[10px] bg-amber-500/20 text-aws-orange px-1.5 py-0.5 rounded font-mono border border-amber-500/30">AWS Compatible</span>
+      </a>
+
+      <!-- Services Dropdown Button -->
+      <button onclick="showView('labs')" class="flex items-center space-x-1.5 px-2.5 py-1 text-xs font-medium rounded hover-aws text-gray-200">
+        <i class="fa-solid fa-th"></i>
+        <span>Services</span>
+      </button>
+
+      <!-- Global Search -->
+      <div class="relative w-80">
+        <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2 text-xs text-gray-400"></i>
+        <input type="text" id="globalSearchInput" placeholder="Search for services, features, labs [Ctrl+K]..." class="w-full bg-[#232f3e] text-xs text-white pl-8 pr-12 py-1 rounded border border-gray-600 focus:outline-none focus:border-aws-orange">
+        <span class="absolute right-2 top-1.5 text-[10px] text-gray-400 bg-gray-700 px-1 rounded">Alt+S</span>
+      </div>
+    </div>
+
+    <!-- Right Header Controls -->
+    <div class="flex items-center space-x-2 text-xs">
+      <!-- CloudShell Icon -->
+      <button onclick="toggleCloudShell()" class="p-1.5 px-2 rounded hover-aws text-gray-300 hover:text-white flex items-center space-x-1" title="Open CloudShell">
+        <i class="fa-solid fa-terminal text-sm text-green-400"></i>
+        <span class="hidden md:inline">CloudShell</span>
+      </button>
+
+      <!-- Live API Inspector Pill -->
+      <button onclick="showView('inspector')" class="flex items-center space-x-1 px-2 py-1 rounded bg-blue-900/60 text-blue-200 border border-blue-700/50 hover:bg-blue-800">
+        <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+        <span class="font-mono text-[11px]">API Inspector</span>
+        <span id="inspectorCounter" class="bg-blue-600 px-1 rounded text-[10px]">0</span>
+      </button>
+
+      <!-- Region Switcher -->
+      <div class="relative">
+        <button class="flex items-center space-x-1 px-2 py-1 rounded hover-aws text-gray-200 font-mono text-[11px]">
+          <i class="fa-solid fa-globe text-gray-400 text-xs"></i>
+          <span id="currentRegionLabel">us-east-1 (N. Virginia)</span>
+        </button>
+      </div>
+
+      <!-- Account Switcher -->
+      <div class="relative border-l border-gray-700 pl-2">
+        <button class="flex items-center space-x-1 px-2 py-1 rounded hover-aws text-gray-200">
+          <i class="fa-solid fa-user-circle text-aws-orange text-sm"></i>
+          <span class="font-semibold">000000000000</span>
+          <span class="text-gray-400">[root]</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN WORKSPACE -->
+  <div class="flex flex-1 overflow-hidden">
+    <!-- LEFT SIDEBAR -->
+    <aside class="w-60 bg-white border-r border-gray-200 flex flex-col justify-between select-none">
+      <div class="overflow-y-auto py-2">
+        <!-- Main Navigation Links -->
+        <div class="px-3 pb-2 text-[11px] font-bold uppercase tracking-wider text-gray-400">Learning Center</div>
+        <nav class="space-y-0.5 px-2 text-xs">
+          <a href="javascript:showView('dashboard')" id="nav-dashboard" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100 hover:text-black">
+            <i class="fa-solid fa-gauge text-gray-500 w-4"></i>
+            <span>Console Home</span>
+          </a>
+          <a href="javascript:showView('labs')" id="nav-labs" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100 hover:text-black">
+            <i class="fa-solid fa-graduation-cap text-indigo-600 w-4"></i>
+            <span>Guided Labs (60+)</span>
+            <span class="ml-auto bg-indigo-100 text-indigo-800 text-[10px] px-1.5 py-0.5 rounded-full font-bold">New</span>
+          </a>
+          <a href="javascript:showView('inspector')" id="nav-inspector" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100 hover:text-black">
+            <i class="fa-solid fa-microchip text-blue-600 w-4"></i>
+            <span>Live API Inspector</span>
+          </a>
+          <a href="javascript:showView('billing')" id="nav-billing" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100 hover:text-black">
+            <i class="fa-solid fa-coins text-amber-500 w-4"></i>
+            <span>Billing & Cost Sandbox</span>
+          </a>
+        </nav>
+
+        <div class="px-3 pt-4 pb-2 text-[11px] font-bold uppercase tracking-wider text-gray-400">AWS Core Services</div>
+        <nav class="space-y-0.5 px-2 text-xs">
+          <a href="javascript:showView('iam')" id="nav-iam" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100">
+            <i class="fa-solid fa-key text-red-500 w-4"></i>
+            <span>IAM & STS</span>
+          </a>
+          <a href="javascript:showView('s3')" id="nav-s3" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100">
+            <i class="fa-solid fa-bucket text-green-600 w-4"></i>
+            <span>Amazon S3</span>
+          </a>
+          <a href="javascript:showView('ec2')" id="nav-ec2" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100">
+            <i class="fa-solid fa-server text-orange-500 w-4"></i>
+            <span>Amazon EC2</span>
+          </a>
+          <a href="javascript:showView('sqs')" id="nav-sqs" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100">
+            <i class="fa-solid fa-envelope-open-text text-pink-500 w-4"></i>
+            <span>Amazon SQS</span>
+          </a>
+          <a href="javascript:showView('sns')" id="nav-sns" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100">
+            <i class="fa-solid fa-bullhorn text-rose-500 w-4"></i>
+            <span>Amazon SNS</span>
+          </a>
+        </nav>
+      </div>
+
+      <!-- Footer Info -->
+      <div class="p-3 border-t border-gray-200 text-[11px] text-gray-500 bg-gray-50 flex items-center justify-between">
+        <div>
+          <p class="font-semibold text-gray-700">LocalCloud v1.0</p>
+          <p class="text-[10px]">Port: 4566 (AWS CLI)</p>
+        </div>
+        <button onclick="resetCloud()" class="text-red-600 hover:text-red-800 text-xs px-2 py-1 rounded hover:bg-red-50 font-medium" title="Reset all state">
+          <i class="fa-solid fa-arrow-rotate-right mr-1"></i>Reset
+        </button>
+      </div>
+    </aside>
+
+    <!-- CONTENT AREA -->
+    <main class="flex-1 overflow-y-auto bg-gray-100 p-6" id="mainContent">
+
+      <!-- DASHBOARD VIEW -->
+      <section id="view-dashboard" class="space-y-6">
+        <div class="bg-gradient-to-r from-aws-squid to-[#232f3e] text-white p-6 rounded-lg shadow-sm">
+          <div class="flex items-center justify-between">
+            <div>
+              <h1 class="text-2xl font-bold flex items-center space-x-2">
+                <span>Welcome to AWS Management Console</span>
+                <span class="text-xs bg-amber-500 text-black px-2 py-0.5 rounded font-bold uppercase tracking-wider">LocalCloud Sandbox</span>
+              </h1>
+              <p class="text-sm text-gray-300 mt-1 max-w-2xl">
+                A 100% free, local AWS-compatible learning platform. Connect your official <code class="text-aws-orange bg-black/40 px-1.5 py-0.5 rounded">aws</code> CLI, boto3, Terraform, and SDKs with endpoint <code class="text-aws-orange bg-black/40 px-1.5 py-0.5 rounded">http://localhost:4566</code>.
+              </p>
+            </div>
+            <div class="flex space-x-2">
+              <button onclick="showView('labs')" class="bg-aws-orange hover:bg-amber-600 text-black font-semibold text-xs px-4 py-2.5 rounded shadow flex items-center space-x-1.5 transition">
+                <i class="fa-solid fa-book-open"></i>
+                <span>Explore Guided Labs</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+            <div class="flex items-center justify-between text-gray-500 text-xs font-semibold uppercase">
+              <span>S3 Buckets</span>
+              <i class="fa-solid fa-bucket text-green-600 text-lg"></i>
+            </div>
+            <p id="stat-s3-buckets" class="text-2xl font-bold text-gray-800 mt-2">Active</p>
+            <p class="text-[11px] text-gray-500 mt-1">Ready for static web & data storage</p>
+          </div>
+          <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+            <div class="flex items-center justify-between text-gray-500 text-xs font-semibold uppercase">
+              <span>EC2 Compute</span>
+              <i class="fa-solid fa-server text-orange-500 text-lg"></i>
+            </div>
+            <p id="stat-ec2-instances" class="text-2xl font-bold text-gray-800 mt-2">Active</p>
+            <p class="text-[11px] text-gray-500 mt-1">Virtual compute containers</p>
+          </div>
+          <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+            <div class="flex items-center justify-between text-gray-500 text-xs font-semibold uppercase">
+              <span>IAM Principals</span>
+              <i class="fa-solid fa-users text-red-500 text-lg"></i>
+            </div>
+            <p id="stat-iam-users" class="text-2xl font-bold text-gray-800 mt-2">1 [root]</p>
+            <p class="text-[11px] text-gray-500 mt-1">Users, roles and access keys</p>
+          </div>
+          <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+            <div class="flex items-center justify-between text-gray-500 text-xs font-semibold uppercase">
+              <span>Simulated AWS Bill</span>
+              <i class="fa-solid fa-coins text-amber-500 text-lg"></i>
+            </div>
+            <p class="text-2xl font-bold text-green-600 mt-2">$0.00</p>
+            <p class="text-[11px] text-gray-500 mt-1">Free Tier & Educational Sandbox</p>
+          </div>
+        </div>
+
+        <!-- CLI Quickstart Box -->
+        <div class="bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-bold text-sm text-gray-800 flex items-center space-x-2">
+              <i class="fa-solid fa-terminal text-aws-orange"></i>
+              <span>Official AWS CLI One-Minute Quickstart</span>
+            </h3>
+            <button onclick="copySnippet('cli-code')" class="text-xs text-blue-600 hover:text-blue-800 font-medium">
+              <i class="fa-regular fa-copy mr-1"></i>Copy Command
+            </button>
+          </div>
+          <pre id="cli-code" class="bg-gray-900 text-green-400 p-4 rounded font-mono text-xs overflow-x-auto select-all"># 1. Configure dummy AWS credentials:
+export AWS_ACCESS_KEY_ID="test"
+export AWS_SECRET_ACCESS_KEY="test"
+export AWS_DEFAULT_REGION="us-east-1"
+
+# 2. Verify caller identity:
+aws --endpoint-url http://localhost:4566 sts get-caller-identity
+
+# 3. Create and list S3 buckets:
+aws --endpoint-url http://localhost:4566 s3 mb s3://my-first-bucket
+aws --endpoint-url http://localhost:4566 s3 ls
+
+# 4. Create an SQS queue:
+aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queue</pre>
+        </div>
+      </section>
+
+      <!-- GUIDED LABS VIEW -->
+      <section id="view-labs" class="hidden space-y-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900">Guided Hands-On Labs</h1>
+            <p class="text-sm text-gray-500">Practice real AWS scenarios mapped to official certification tracks with live automated grading.</p>
+          </div>
+        </div>
+
+        <div id="labsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Populated by JavaScript -->
+        </div>
+      </section>
+
+      <!-- LIVE API INSPECTOR VIEW -->
+      <section id="view-inspector" class="hidden space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900 flex items-center space-x-2">
+              <span>Live API Inspector</span>
+              <span class="flex h-3 w-3 relative">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+              </span>
+            </h1>
+            <p class="text-sm text-gray-500">Real-time stream of all AWS SDK, CLI, and console API calls hitting LocalCloud port 4566.</p>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead class="bg-gray-50 border-b border-gray-200 text-gray-500 uppercase tracking-wider font-semibold">
+              <tr>
+                <th class="p-3">Time</th>
+                <th class="p-3">Service</th>
+                <th class="p-3">Action</th>
+                <th class="p-3">Principal</th>
+                <th class="p-3">Status</th>
+                <th class="p-3">Latency</th>
+                <th class="p-3">Explanation & Code</th>
+              </tr>
+            </thead>
+            <tbody id="inspectorEventsTable" class="divide-y divide-gray-100 font-mono">
+              <tr>
+                <td colspan="7" class="p-8 text-center text-gray-400 font-sans">
+                  <i class="fa-solid fa-satellite-dish text-3xl mb-2 text-gray-300"></i>
+                  <p>Listening on <code class="text-aws-orange">http://localhost:4566</code>... Run any AWS CLI command to see calls stream here in real time!</p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- S3 SERVICE VIEW -->
+      <section id="view-s3" class="hidden space-y-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900">Amazon S3 Buckets</h1>
+            <p class="text-sm text-gray-500">Scalable cloud object storage with versioning, policies, and website hosting.</p>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead class="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold uppercase">
+              <tr>
+                <th class="p-3">Bucket Name</th>
+                <th class="p-3">AWS Region</th>
+                <th class="p-3">Creation Date</th>
+              </tr>
+            </thead>
+            <tbody id="s3BucketsTable" class="divide-y divide-gray-100">
+              <tr>
+                <td class="p-3 font-semibold text-gray-900">localcloud-demo-bucket</td>
+                <td class="p-3 text-gray-500">us-east-1</td>
+                <td class="p-3 text-gray-500">Active</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- IAM SERVICE VIEW -->
+      <section id="view-iam" class="hidden space-y-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900">Identity and Access Management (IAM)</h1>
+            <p class="text-sm text-gray-500">Manage fine-grained permissions, roles, access keys, and policy evaluation.</p>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead class="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold uppercase">
+              <tr>
+                <th class="p-3">User Name</th>
+                <th class="p-3">User ARN</th>
+                <th class="p-3">Attached Policies</th>
+                <th class="p-3">Access Keys</th>
+              </tr>
+            </thead>
+            <tbody id="iamUsersTable" class="divide-y divide-gray-100">
+              <tr>
+                <td class="p-3 font-semibold text-gray-900 flex items-center space-x-2">
+                  <i class="fa-solid fa-crown text-amber-500"></i>
+                  <span>root</span>
+                </td>
+                <td class="p-3 font-mono text-gray-600">arn:aws:iam::000000000000:root</td>
+                <td class="p-3"><span class="bg-green-100 text-green-800 px-2 py-0.5 rounded font-mono text-[10px]">AdministratorAccess (*)</span></td>
+                <td class="p-3 font-mono">AKIAIOSFODNN7EXAMPLE</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- BILLING VIEW -->
+      <section id="view-billing" class="hidden space-y-6">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900">AWS Cost Sandbox & Billing Simulator</h1>
+          <p class="text-sm text-gray-500">Understand AWS pricing models, compare real-world costs, and practice setting up budgets.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
+            <span class="text-xs font-semibold text-gray-500 uppercase">LocalCloud Bill</span>
+            <p class="text-3xl font-bold text-green-600 mt-2">$0.00</p>
+            <p class="text-xs text-gray-500 mt-1">100% Free for offline study</p>
+          </div>
+          <div class="bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
+            <span class="text-xs font-semibold text-gray-500 uppercase">Estimated Real AWS Equivalent</span>
+            <p class="text-3xl font-bold text-amber-600 mt-2">$34.50 / mo</p>
+            <p class="text-xs text-gray-500 mt-1">Based on active simulated architecture</p>
+          </div>
+          <div class="bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
+            <span class="text-xs font-semibold text-gray-500 uppercase">AWS Free Tier Status</span>
+            <p class="text-3xl font-bold text-blue-600 mt-2">Active (Year 1)</p>
+            <p class="text-xs text-gray-500 mt-1">750 hrs t3.micro, 5 GB S3, 1M Lambda</p>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- CLOUDSHELL DRAWER -->
+  <div id="cloudShellDrawer" class="hidden fixed bottom-0 left-0 right-0 h-80 bg-gray-950 text-white z-40 flex flex-col border-t-2 border-aws-orange shadow-2xl">
+    <div class="bg-gray-900 px-4 py-2 flex items-center justify-between border-b border-gray-800 text-xs">
+      <div class="flex items-center space-x-2">
+        <i class="fa-solid fa-terminal text-green-400"></i>
+        <span class="font-bold">AWS CloudShell — LocalCloud Interactive Terminal</span>
+      </div>
+      <button onclick="toggleCloudShell()" class="text-gray-400 hover:text-white">
+        <i class="fa-solid fa-times"></i>
+      </button>
+    </div>
+    <div class="flex-1 p-3 overflow-y-auto font-mono text-xs text-green-400 space-y-2" id="cloudShellLog">
+      <p class="text-gray-400">[LocalCloud CloudShell initialized. All commands run directly against port 4566.]</p>
+    </div>
+    <div class="bg-gray-900 p-2 flex items-center space-x-2 border-t border-gray-800">
+      <span class="text-green-500 font-mono text-xs pl-2">$ aws</span>
+      <input type="text" id="cloudShellInput" onkeydown="if(event.key==='Enter') executeCloudShell(this.value)" placeholder="sts get-caller-identity" class="flex-1 bg-transparent text-white text-xs font-mono focus:outline-none">
+    </div>
+  </div>
+
+  <!-- CODE GENERATOR MODAL -->
+  <div id="codeModal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-2xl rounded-lg shadow-xl overflow-hidden">
+      <div class="bg-aws-squid text-white px-5 py-3.5 flex items-center justify-between">
+        <h3 class="font-bold text-sm flex items-center space-x-2">
+          <i class="fa-solid fa-code text-aws-orange"></i>
+          <span>Equivalent AWS Commands & Infrastructure as Code</span>
+        </h3>
+        <button onclick="closeModal('codeModal')" class="text-gray-400 hover:text-white"><i class="fa-solid fa-times"></i></button>
+      </div>
+      <div class="p-5 space-y-4">
+        <div>
+          <span class="text-xs font-bold uppercase text-gray-500">Official AWS CLI</span>
+          <pre id="modalCliCode" class="mt-1 p-3 bg-gray-900 text-green-400 font-mono text-xs rounded overflow-x-auto"></pre>
+        </div>
+        <div>
+          <span class="text-xs font-bold uppercase text-gray-500">HashiCorp Terraform</span>
+          <pre id="modalTfCode" class="mt-1 p-3 bg-gray-900 text-purple-400 font-mono text-xs rounded overflow-x-auto"></pre>
+        </div>
+      </div>
+      <div class="bg-gray-50 px-5 py-3 border-t border-gray-200 text-right">
+        <button onclick="closeModal('codeModal')" class="text-xs bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded font-medium text-gray-800">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let inspectorEvents = [];
+
+    function showView(viewName) {
+      const views = ['dashboard', 'labs', 'inspector', 's3', 'iam', 'billing'];
+      views.forEach(function(v) {
+        const el = document.getElementById('view-' + v);
+        const nav = document.getElementById('nav-' + v);
+        if (el) el.classList.add('hidden');
+        if (nav) nav.classList.remove('bg-gray-200', 'font-bold');
+      });
+      const activeEl = document.getElementById('view-' + viewName);
+      const activeNav = document.getElementById('nav-' + viewName);
+      if (activeEl) activeEl.classList.remove('hidden');
+      if (activeNav) activeNav.classList.add('bg-gray-200', 'font-bold');
+      if (viewName === 'labs') loadLabs();
+    }
+
+    function connectInspectorSSE() {
+      const evtSource = new EventSource('/api/stream/inspector');
+      evtSource.onmessage = function(e) {
+        try {
+          const ev = JSON.parse(e.data);
+          if (ev.type === 'connected') return;
+          addInspectorEvent(ev);
+        } catch(err) {
+          console.error(err);
+        }
+      };
+      evtSource.onerror = function() {
+        setTimeout(connectInspectorSSE, 3000);
+      };
+    }
+
+    function addInspectorEvent(ev) {
+      inspectorEvents.unshift(ev);
+      if (inspectorEvents.length > 200) inspectorEvents.pop();
+
+      document.getElementById('inspectorCounter').innerText = inspectorEvents.length;
+
+      const tbody = document.getElementById('inspectorEventsTable');
+      if (inspectorEvents.length === 1) tbody.innerHTML = '';
+
+      const tr = document.createElement('tr');
+      tr.className = 'hover:bg-gray-50 transition border-b border-gray-100';
+
+      const statusBadge = ev.errorCode 
+        ? '<span class="bg-red-100 text-red-800 px-2 py-0.5 rounded font-sans text-[10px] font-bold">' + ev.errorCode + '</span>'
+        : '<span class="bg-green-100 text-green-800 px-2 py-0.5 rounded font-sans text-[10px] font-bold">200 OK</span>';
+
+      tr.innerHTML = 
+        '<td class="p-3 text-gray-500 font-mono text-[11px]">' + (ev.eventTime ? ev.eventTime.slice(11, 19) : '') + '</td>' +
+        '<td class="p-3 font-bold text-gray-700">' + (ev.eventSource ? ev.eventSource.replace('.amazonaws.com', '') : '') + '</td>' +
+        '<td class="p-3 text-blue-600 font-semibold">' + ev.eventName + '</td>' +
+        '<td class="p-3 text-gray-500">' + (ev.userIdentity ? ev.userIdentity.principalId : 'root') + '</td>' +
+        '<td class="p-3">' + statusBadge + '</td>' +
+        '<td class="p-3 text-gray-400 font-mono text-[11px]">' + ev.latencyMs + ' ms</td>' +
+        '<td class="p-3">' +
+          '<button class="text-xs text-indigo-600 hover:text-indigo-800 font-sans font-medium" onclick="showEventDetail(\'' + (ev.equivalentCLI || '') + '\', \'' + (ev.equivalentTerraform || '') + '\')">' +
+            '<i class="fa-solid fa-circle-info mr-1"></i>Explain & Code' +
+          '</button>' +
+        '</td>';
+      tbody.prepend(tr);
+    }
+
+    function showEventDetail(cli, tf) {
+      document.getElementById('modalCliCode').innerText = cli || 'aws --endpoint-url http://localhost:4566 ...';
+      document.getElementById('modalTfCode').innerText = tf || '# Terraform block';
+      openModal('codeModal');
+    }
+
+    function loadLabs() {
+      fetch('/api/labs')
+        .then(function(r) { return r.json(); })
+        .then(function(labs) {
+          const container = document.getElementById('labsContainer');
+          container.innerHTML = '';
+          labs.forEach(function(l) {
+            const card = document.createElement('div');
+            card.className = 'bg-white p-5 rounded-lg border border-gray-200 shadow-sm space-y-3';
+            card.innerHTML = 
+              '<div class="flex items-start justify-between">' +
+                '<div>' +
+                  '<span class="text-[10px] bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-0.5 rounded font-semibold uppercase tracking-wider">' + l.track + '</span>' +
+                  '<h3 class="font-bold text-base text-gray-900 mt-1">' + l.title + '</h3>' +
+                '</div>' +
+                '<span class="text-xs text-gray-400 font-mono">' + l.duration + '</span>' +
+              '</div>' +
+              '<p class="text-xs text-gray-600">' + l.objective + '</p>' +
+              '<div class="p-2.5 bg-gray-50 rounded border border-gray-200 font-mono text-[11px] text-gray-700 overflow-x-auto">' +
+                l.diagram +
+              '</div>' +
+              '<div class="flex items-center justify-between pt-2 border-t border-gray-100">' +
+                '<span class="text-[11px] text-gray-500">Real AWS: ' + l.real_aws_cost + '</span>' +
+                '<button onclick="checkLab(\'' + l.id + '\')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs px-3.5 py-1.5 rounded shadow">' +
+                  '<i class="fa-solid fa-check-circle mr-1"></i>Verify Lab' +
+                '</button>' +
+              '</div>';
+            container.appendChild(card);
+          });
+        });
+    }
+
+    function checkLab(id) {
+      fetch('/api/labs/check', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({lab_id: id})
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(res) {
+        alert(res.passed ? "🎉 Passed! " + res.details.join("\n") : "Result: " + res.details.join("\n"));
+      });
+    }
+
+    function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+    function toggleCloudShell() { document.getElementById('cloudShellDrawer').classList.toggle('hidden'); }
+
+    function executeCloudShell(cmd) {
+      if (!cmd.trim()) return;
+      const log = document.getElementById('cloudShellLog');
+      log.innerHTML += '<p><span class="text-green-500">$ aws ' + cmd + '</span></p>';
+      document.getElementById('cloudShellInput').value = '';
+
+      fetch('http://localhost:4566', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': 'AWS4-HMAC-SHA256 Credential=test/20261103/us-east-1/sts/aws4_request'
+        },
+        body: 'Action=GetCallerIdentity'
+      })
+      .then(function(r) { return r.text(); })
+      .then(function(t) {
+        log.innerHTML += '<pre class="text-gray-300 text-[11px]">' + t.replace(/</g, '&lt;') + '</pre>';
+        log.scrollTop = log.scrollHeight;
+      });
+    }
+
+    function resetCloud() {
+      if (confirm('Reset LocalCloud state to clean defaults?')) {
+        fetch('/api/reset', {method: 'POST'})
+          .then(function() { alert('LocalCloud state successfully reset!'); });
+      }
+    }
+
+    function copySnippet(id) {
+      const text = document.getElementById(id).innerText;
+      navigator.clipboard.writeText(text);
+      alert('Copied to clipboard!');
+    }
+
+    window.onload = function() {
+      connectInspectorSSE();
+    };
+  </script>
+</body>
+</html>
