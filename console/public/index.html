@@ -28,7 +28,7 @@
   <header class="bg-aws-squid text-white h-11 flex items-center justify-between px-3 select-none z-30 shadow">
     <div class="flex items-center space-x-3">
       <!-- AWS Logo / Brand -->
-      <a href="javascript:showView('dashboard')" class="flex items-center space-x-1.5 font-bold tracking-tight text-white hover:text-aws-orange transition">
+      <a href="#/dashboard" onclick="showView('dashboard')" class="flex items-center space-x-1.5 font-bold tracking-tight text-white hover:text-aws-orange transition">
         <i class="fa-solid fa-cube text-aws-orange text-lg"></i>
         <span class="text-sm font-semibold tracking-wide">LocalCloud</span>
         <span class="text-[10px] bg-amber-500/20 text-aws-orange px-1.5 py-0.5 rounded font-mono border border-amber-500/30">AWS Compatible</span>
@@ -96,36 +96,36 @@
         <!-- Main Navigation Links -->
         <div class="px-3 pb-2 text-[11px] font-bold uppercase tracking-wider text-gray-400">Learning Center</div>
         <nav class="space-y-0.5 px-2 text-xs">
-          <a href="javascript:showView('dashboard')" id="nav-dashboard" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100 hover:text-black">
+          <a href="#/dashboard" onclick="showView('dashboard')" id="nav-dashboard" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100 hover:text-black">
             <i class="fa-solid fa-gauge text-gray-500 w-4"></i>
             <span>Console Home</span>
           </a>
-          <a href="javascript:showView('labs')" id="nav-labs" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100 hover:text-black">
+          <a href="#/labs" onclick="showView('labs')" id="nav-labs" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100 hover:text-black">
             <i class="fa-solid fa-graduation-cap text-indigo-600 w-4"></i>
             <span>Guided Labs (60+)</span>
             <span class="ml-auto bg-indigo-100 text-indigo-800 text-[10px] px-1.5 py-0.5 rounded-full font-bold">New</span>
           </a>
-          <a href="javascript:showView('resourcemap')" id="nav-resourcemap" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100 hover:text-black">
+          <a href="#/resourcemap" onclick="showView('resourcemap')" id="nav-resourcemap" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100 hover:text-black">
             <i class="fa-solid fa-diagram-project text-cyan-600 w-4"></i>
             <span>Visual Resource Map</span>
           </a>
-          <a href="javascript:showView('inspector')" id="nav-inspector" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100 hover:text-black">
+          <a href="#/inspector" onclick="showView('inspector')" id="nav-inspector" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100 hover:text-black">
             <i class="fa-solid fa-microchip text-blue-600 w-4"></i>
             <span>Live API Inspector</span>
           </a>
-          <a href="javascript:showView('quizzes')" id="nav-quizzes" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100 hover:text-black">
+          <a href="#/quizzes" onclick="showView('quizzes')" id="nav-quizzes" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100 hover:text-black">
             <i class="fa-solid fa-circle-question text-purple-600 w-4"></i>
             <span>Practice Quizzes</span>
           </a>
-          <a href="javascript:showView('chaos')" id="nav-chaos" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100 hover:text-black">
+          <a href="#/chaos" onclick="showView('chaos')" id="nav-chaos" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100 hover:text-black">
             <i class="fa-solid fa-bolt text-red-500 w-4"></i>
             <span>Chaos & Failure Lab</span>
           </a>
-          <a href="javascript:showView('mailbox')" id="nav-mailbox" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100 hover:text-black">
+          <a href="#/mailbox" onclick="showView('mailbox')" id="nav-mailbox" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100 hover:text-black">
             <i class="fa-solid fa-inbox text-blue-500 w-4"></i>
             <span>SES / SNS Mailbox</span>
           </a>
-          <a href="javascript:showView('billing')" id="nav-billing" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100 hover:text-black">
+          <a href="#/billing" onclick="showView('billing')" id="nav-billing" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100 hover:text-black">
             <i class="fa-solid fa-coins text-amber-500 w-4"></i>
             <span>Billing & Cost Sandbox</span>
           </a>
@@ -133,31 +133,31 @@
 
         <div class="px-3 pt-4 pb-2 text-[11px] font-bold uppercase tracking-wider text-gray-400">AWS Core Services</div>
         <nav class="space-y-0.5 px-2 text-xs">
-          <a href="javascript:showView('iam')" id="nav-iam" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100">
+          <a href="#/iam" onclick="showView('iam')" id="nav-iam" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100">
             <i class="fa-solid fa-key text-red-500 w-4"></i>
             <span>IAM & STS</span>
           </a>
-          <a href="javascript:showView('s3')" id="nav-s3" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100">
+          <a href="#/s3" onclick="showView('s3')" id="nav-s3" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100">
             <i class="fa-solid fa-bucket text-green-600 w-4"></i>
             <span>Amazon S3</span>
           </a>
-          <a href="javascript:showView('ec2')" id="nav-ec2" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100">
+          <a href="#/ec2" onclick="showView('ec2')" id="nav-ec2" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100">
             <i class="fa-solid fa-server text-orange-500 w-4"></i>
             <span>Amazon EC2</span>
           </a>
-          <a href="javascript:showView('sqs')" id="nav-sqs" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100">
+          <a href="#/sqs" onclick="showView('sqs')" id="nav-sqs" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100">
             <i class="fa-solid fa-envelope-open-text text-pink-500 w-4"></i>
             <span>Amazon SQS</span>
           </a>
-          <a href="javascript:showView('sns')" id="nav-sns" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100">
+          <a href="#/sns" onclick="showView('sns')" id="nav-sns" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100">
             <i class="fa-solid fa-bullhorn text-rose-500 w-4"></i>
             <span>Amazon SNS</span>
           </a>
-          <a href="javascript:showView('rds')" id="nav-rds" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100">
+          <a href="#/rds" onclick="showView('rds')" id="nav-rds" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100">
             <i class="fa-solid fa-database text-blue-600 w-4"></i>
             <span>Amazon RDS</span>
           </a>
-          <a href="javascript:showView('cloudformation')" id="nav-cloudformation" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100">
+          <a href="#/cloudformation" onclick="showView('cloudformation')" id="nav-cloudformation" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-md font-medium text-gray-700 hover:bg-gray-100">
             <i class="fa-solid fa-layer-group text-orange-600 w-4"></i>
             <span>CloudFormation</span>
           </a>
@@ -1185,7 +1185,9 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
       }
     }
 
-    function showView(viewName) {
+    function showView(viewName, updateUrl = true) {
+      if (!allViews.includes(viewName)) viewName = 'dashboard';
+
       allViews.forEach(function(v) {
         const el = document.getElementById('view-' + v);
         const nav = document.getElementById('nav-' + v);
@@ -1198,12 +1200,56 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
       if (activeEl) activeEl.classList.remove('hidden');
       if (activeNav) activeNav.classList.add('bg-gray-200', 'font-bold');
 
+      // Update URL in browser address bar (Hash-based SPA routing)
+      if (updateUrl) {
+        const targetPath = window.location.pathname.startsWith('/console') ? '/console' : window.location.pathname;
+        const targetHash = '#/' + viewName;
+        if (window.location.hash !== targetHash) {
+          history.pushState({ view: viewName }, '', targetPath + targetHash);
+        }
+      }
+
+      // Update browser tab title
+      const titles = {
+        dashboard: 'AWS Management Console | LocalCloud',
+        iam: 'IAM Management Console | LocalCloud',
+        s3: 'Amazon S3 Console | LocalCloud',
+        ec2: 'Amazon EC2 Console | LocalCloud',
+        sqs: 'Amazon SQS Console | LocalCloud',
+        sns: 'Amazon SNS Console | LocalCloud',
+        rds: 'Amazon RDS Console | LocalCloud',
+        cloudformation: 'AWS CloudFormation Console | LocalCloud',
+        labs: 'Guided AWS Labs | LocalCloud',
+        resourcemap: 'Visual Architecture Map | LocalCloud',
+        inspector: 'Live API Inspector | LocalCloud',
+        quizzes: 'AWS Certification Quizzes | LocalCloud',
+        chaos: 'Chaos & Failure Lab | LocalCloud',
+        mailbox: 'SES & SNS Mailbox | LocalCloud',
+        billing: 'AWS Billing & Cost Sandbox | LocalCloud'
+      };
+      if (titles[viewName]) {
+        document.title = titles[viewName];
+      }
+
       // Load data for the selected view
       if (viewName === 'labs') loadLabs();
       if (viewName === 'quizzes') loadQuizzes();
       if (viewName === 'mailbox') loadMailbox();
       loadResources();
     }
+
+    function handleRoute() {
+      let hash = window.location.hash || '';
+      hash = hash.replace(/^#\/?/, '');
+      if (hash && allViews.includes(hash)) {
+        showView(hash, false);
+      } else {
+        showView('dashboard', false);
+      }
+    }
+
+    window.addEventListener('hashchange', handleRoute);
+    window.addEventListener('popstate', handleRoute);
 
     function loadResources() {
       fetch('/api/resources')
@@ -1579,6 +1625,12 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
     }
 
     window.onload = function() {
+      // Normalize root path to /console if in browser
+      if (window.location.pathname === '/' || window.location.pathname === '') {
+        const hash = window.location.hash || '#/dashboard';
+        history.replaceState(null, '', '/console' + hash);
+      }
+      handleRoute();
       connectInspectorSSE();
       loadResources();
     };

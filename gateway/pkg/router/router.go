@@ -33,6 +33,10 @@ func (rt *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		strings.HasPrefix(r.URL.Path, "/assets/") ||
 		r.URL.Path == "/favicon.ico" ||
 		(r.URL.Path == "/" && r.Method == http.MethodGet && r.Header.Get("Authorization") == "" && r.Header.Get("X-Amz-Target") == "" && r.URL.Query().Get("Action") == "") {
+		if r.URL.Path == "/" && strings.Contains(r.Header.Get("Accept"), "text/html") {
+			http.Redirect(w, r, "/console#/dashboard", http.StatusFound)
+			return
+		}
 		if rt.consoleHandler != nil {
 			rt.consoleHandler.ServeHTTP(w, r)
 			return
