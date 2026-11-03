@@ -302,10 +302,11 @@ func (a *S3Adapter) HeadObject(ctx *context.RequestContext, r *http.Request) (in
 	key := ctx.ParsedParams["Key"]
 
 	objPath := filepath.Join(a.dataDir, bucket, key)
-	if _, err := os.Stat(objPath); err != nil {
+	info, err := os.Stat(objPath)
+	if err != nil {
 		return nil, errors.ErrNoSuchKey
 	}
-	return nil, nil
+	return info.Size(), nil
 }
 
 func (a *S3Adapter) PutBucketPolicy(ctx *context.RequestContext, r *http.Request) (interface{}, error) {

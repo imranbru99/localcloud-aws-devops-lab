@@ -3,7 +3,9 @@ package protocols
 import (
 	"encoding/xml"
 	"net/http"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/imrandev/localcloud/gateway/pkg/context"
 )
@@ -121,12 +123,27 @@ func WriteRestXMLResponse(w http.ResponseWriter, ctx *context.RequestContext, da
 		w.WriteHeader(http.StatusOK)
 		return
 	}
-	if ctx.Action == "HeadBucket" || ctx.Action == "HeadObject" {
+	if ctx.Action == "HeadObject" {
+		if size, ok := data.(int64); ok {
+			w.Header().Set("Content-Length", strconv.FormatInt(size, 10))
+		}
+		w.Header().Set("Content-Type", "application/octet-stream")
+		w.Header().Set("ETag", "\"d41d8cd98f00b204e9800998ecf8427e\"")
+		w.Header().Set("Last-Modified", time.Now().UTC().Format(http.TimeFormat))
+		w.Header().Set("Accept-Ranges", "bytes")
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+	if ctx.Action == "HeadBucket" {
 		w.WriteHeader(http.StatusOK)
 		return
 	}
 	if b, ok := data.([]byte); ok {
 		w.Header().Set("Content-Type", "application/octet-stream")
+		w.Header().Set("Content-Length", strconv.Itoa(len(b)))
+		w.Header().Set("ETag", "\"d41d8cd98f00b204e9800998ecf8427e\"")
+		w.Header().Set("Last-Modified", time.Now().UTC().Format(http.TimeFormat))
+		w.Header().Set("Accept-Ranges", "bytes")
 		w.WriteHeader(http.StatusOK)
 		w.Write(b)
 		return
