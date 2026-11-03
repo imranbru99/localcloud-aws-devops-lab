@@ -10,7 +10,7 @@ An open-source local cloud playground and guided academy — from your first AWS
 
 [Get started](#quickstart) · [See the application](#application-gallery) · [Explore the curriculum](#complete-learning-roadmap) · [Business value](#business-value-and-time-savings) · [Compatibility](#service-api-catalog)
 
-![LocalCloud Academy showing the learning roadmap entry point and progress tracking](docs/images/academy.jpg)
+![LocalCloud console dashboard with service navigation, resource summaries, CloudShell and AWS service quick access](docs/images/console-dashboard.png)
 
 **Built by [Imran Ahmed](https://imrandev.bd)**
 
@@ -28,12 +28,14 @@ Use it to practice supported API workflows with dummy credentials, introduce new
 
 Real screenshots captured from the running application, stored in this repository so they render on GitHub without a separate image host.
 
+![LocalCloud Academy showing the learning roadmap entry point and progress tracking](docs/images/academy.jpg)
+
 | Learn the concepts | Turn learning into deliverables |
 |---|---|
 | ![A cloud foundations lesson with explanations and topic tags](docs/images/lesson.jpg) | ![Static website capstone with preparation modules, practical steps and deliverable checklist](docs/images/capstone.jpg) |
 | Clear explanations, topic maps and practical steps. | Project preparation, implementation milestones and review checklists. |
 
-The academy overview above shows the entry point. The console also provides service navigation, guided labs, an API inspector, an IAM simulator and a browser shell.
+The lead screenshot shows the console dashboard; the gallery shows the academy, lesson content and project checklists. Dashboard counts and labels reflect the captured session; see the feature catalog below for current coverage and limitations.
 
 ## Who can use it?
 
