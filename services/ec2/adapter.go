@@ -25,51 +25,63 @@ type EC2Adapter struct {
 }
 
 type InstanceMeta struct {
-	InstanceId   string
-	ImageId      string
-	InstanceType string
-	State        string
-	PrivateIp    string
-	PublicIp     string
-	LaunchTime   time.Time
-	VpcId        string
-	SubnetId     string
+	InstanceId   string    `json:"instance_id"`
+	ImageId      string    `json:"image_id"`
+	InstanceType string    `json:"instance_type"`
+	State        string    `json:"state"`
+	PrivateIp    string    `json:"private_ip"`
+	PublicIp     string    `json:"public_ip"`
+	LaunchTime   time.Time `json:"launch_time"`
+	VpcId        string    `json:"vpc_id"`
+	SubnetId     string    `json:"subnet_id"`
 }
 
 type KeyPairMeta struct {
-	KeyName        string
-	KeyFingerprint string
-	KeyMaterial    string
+	KeyName        string `json:"key_name"`
+	KeyFingerprint string `json:"key_fingerprint"`
+	KeyMaterial    string `json:"-"`
 }
 
 type SecurityGroupMeta struct {
-	GroupId     string
-	GroupName   string
-	Description string
-	VpcId       string
+	GroupId     string `json:"group_id"`
+	GroupName   string `json:"group_name"`
+	Description string `json:"description"`
+	VpcId       string `json:"vpc_id"`
 }
 
 type VpcMeta struct {
-	VpcId     string
-	CidrBlock string
-	State     string
+	VpcId     string `json:"vpc_id"`
+	CidrBlock string `json:"cidr_block"`
+	State     string `json:"state"`
 }
 
 type SubnetMeta struct {
-	SubnetId  string
-	VpcId     string
-	CidrBlock string
-	State     string
+	SubnetId  string `json:"subnet_id"`
+	VpcId     string `json:"vpc_id"`
+	CidrBlock string `json:"cidr_block"`
+	State     string `json:"state"`
+}
+
+var DefaultEC2 = &EC2Adapter{
+	instances:      make(map[string]*InstanceMeta),
+	keyPairs:       make(map[string]*KeyPairMeta),
+	securityGroups: make(map[string]*SecurityGroupMeta),
+	vpcs:           make(map[string]*VpcMeta),
+	subnets:        make(map[string]*SubnetMeta),
 }
 
 func init() {
-	services.Register(&EC2Adapter{
-		instances:      make(map[string]*InstanceMeta),
-		keyPairs:       make(map[string]*KeyPairMeta),
-		securityGroups: make(map[string]*SecurityGroupMeta),
-		vpcs:           make(map[string]*VpcMeta),
-		subnets:        make(map[string]*SubnetMeta),
-	})
+	services.Register(DefaultEC2)
+}
+
+func GetInstances() []*InstanceMeta {
+	DefaultEC2.mu.RLock()
+	defer DefaultEC2.mu.RUnlock()
+	var list []*InstanceMeta
+	for _, inst := range DefaultEC2.instances {
+		list = append(list, inst)
+	}
+	return list
 }
 
 func (a *EC2Adapter) Name() string {
@@ -82,20 +94,20 @@ func (a *EC2Adapter) Protocol() services.Protocol {
 
 func (a *EC2Adapter) Operations() map[string]services.Handler {
 	return map[string]services.Handler{
-		"DescribeInstances":           a.DescribeInstances,
-		"RunInstances":                 a.RunInstances,
-		"TerminateInstances":          a.TerminateInstances,
-		"StopInstances":               a.StopInstances,
-		"StartInstances":              a.StartInstances,
-		"DescribeKeyPairs":            a.DescribeKeyPairs,
-		"CreateKeyPair":               a.CreateKeyPair,
-		"DescribeSecurityGroups":      a.DescribeSecurityGroups,
-		"CreateSecurityGroup":         a.CreateSecurityGroup,
+		"DescribeInstances":             a.DescribeInstances,
+		"RunInstances":                  a.RunInstances,
+		"TerminateInstances":            a.TerminateInstances,
+		"StopInstances":                 a.StopInstances,
+		"StartInstances":                a.StartInstances,
+		"DescribeKeyPairs":              a.DescribeKeyPairs,
+		"CreateKeyPair":                 a.CreateKeyPair,
+		"DescribeSecurityGroups":        a.DescribeSecurityGroups,
+		"CreateSecurityGroup":           a.CreateSecurityGroup,
 		"AuthorizeSecurityGroupIngress": a.AuthorizeSecurityGroupIngress,
-		"DescribeVpcs":                a.DescribeVpcs,
-		"CreateVpc":                   a.CreateVpc,
-		"DescribeSubnets":             a.DescribeSubnets,
-		"CreateSubnet":                a.CreateSubnet,
+		"DescribeVpcs":                  a.DescribeVpcs,
+		"CreateVpc":                     a.CreateVpc,
+		"DescribeSubnets":               a.DescribeSubnets,
+		"CreateSubnet":                  a.CreateSubnet,
 	}
 }
 

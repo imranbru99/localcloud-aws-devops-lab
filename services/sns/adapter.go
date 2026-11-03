@@ -17,22 +17,34 @@ type SNSAdapter struct {
 }
 
 type Topic struct {
-	Name string
-	Arn  string
+	Name string `json:"name"`
+	Arn  string `json:"arn"`
 }
 
 type Subscription struct {
-	Arn      string
-	TopicArn string
-	Protocol string
-	Endpoint string
+	Arn      string `json:"arn"`
+	TopicArn string `json:"topic_arn"`
+	Protocol string `json:"protocol"`
+	Endpoint string `json:"endpoint"`
+}
+
+var DefaultSNS = &SNSAdapter{
+	topics:        make(map[string]*Topic),
+	subscriptions: make(map[string]*Subscription),
 }
 
 func init() {
-	services.Register(&SNSAdapter{
-		topics:        make(map[string]*Topic),
-		subscriptions: make(map[string]*Subscription),
-	})
+	services.Register(DefaultSNS)
+}
+
+func GetTopics() []*Topic {
+	DefaultSNS.mu.RLock()
+	defer DefaultSNS.mu.RUnlock()
+	var list []*Topic
+	for _, t := range DefaultSNS.topics {
+		list = append(list, t)
+	}
+	return list
 }
 
 func (a *SNSAdapter) Name() string {

@@ -15,18 +15,30 @@ type RDSAdapter struct {
 }
 
 type DBInstance struct {
-	DBInstanceIdentifier string
-	DBInstanceClass      string
-	Engine               string
-	DBInstanceStatus     string
-	EndpointAddress      string
-	EndpointPort         int
+	DBInstanceIdentifier string `json:"identifier"`
+	DBInstanceClass      string `json:"class"`
+	Engine               string `json:"engine"`
+	DBInstanceStatus     string `json:"status"`
+	EndpointAddress      string `json:"endpoint"`
+	EndpointPort         int    `json:"port"`
+}
+
+var DefaultRDS = &RDSAdapter{
+	instances: make(map[string]*DBInstance),
 }
 
 func init() {
-	services.Register(&RDSAdapter{
-		instances: make(map[string]*DBInstance),
-	})
+	services.Register(DefaultRDS)
+}
+
+func GetDBInstances() []*DBInstance {
+	DefaultRDS.mu.RLock()
+	defer DefaultRDS.mu.RUnlock()
+	var list []*DBInstance
+	for _, inst := range DefaultRDS.instances {
+		list = append(list, inst)
+	}
+	return list
 }
 
 func (a *RDSAdapter) Name() string {

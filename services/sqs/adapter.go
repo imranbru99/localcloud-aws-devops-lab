@@ -29,17 +29,29 @@ type Message struct {
 }
 
 type Queue struct {
-	Name       string
-	URL        string
-	Arn        string
-	Messages   []*Message
-	Attributes map[string]string
+	Name       string            `json:"name"`
+	URL        string            `json:"url"`
+	Arn        string            `json:"arn"`
+	Messages   []*Message        `json:"messages"`
+	Attributes map[string]string `json:"attributes"`
+}
+
+var DefaultSQS = &SQSAdapter{
+	queues: make(map[string]*Queue),
 }
 
 func init() {
-	services.Register(&SQSAdapter{
-		queues: make(map[string]*Queue),
-	})
+	services.Register(DefaultSQS)
+}
+
+func GetQueues() []*Queue {
+	DefaultSQS.mu.RLock()
+	defer DefaultSQS.mu.RUnlock()
+	var list []*Queue
+	for _, q := range DefaultSQS.queues {
+		list = append(list, q)
+	}
+	return list
 }
 
 func (a *SQSAdapter) Name() string {

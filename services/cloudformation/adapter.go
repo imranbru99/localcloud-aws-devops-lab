@@ -17,16 +17,28 @@ type CloudFormationAdapter struct {
 }
 
 type Stack struct {
-	Name        string
-	Id          string
-	Status      string
-	CreatedTime time.Time
+	Name        string    `json:"name"`
+	Id          string    `json:"id"`
+	Status      string    `json:"status"`
+	CreatedTime time.Time `json:"created_time"`
+}
+
+var DefaultCFN = &CloudFormationAdapter{
+	stacks: make(map[string]*Stack),
 }
 
 func init() {
-	services.Register(&CloudFormationAdapter{
-		stacks: make(map[string]*Stack),
-	})
+	services.Register(DefaultCFN)
+}
+
+func GetStacks() []*Stack {
+	DefaultCFN.mu.RLock()
+	defer DefaultCFN.mu.RUnlock()
+	var list []*Stack
+	for _, s := range DefaultCFN.stacks {
+		list = append(list, s)
+	}
+	return list
 }
 
 func (a *CloudFormationAdapter) Name() string {

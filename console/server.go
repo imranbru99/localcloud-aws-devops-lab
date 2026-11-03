@@ -12,20 +12,26 @@ import (
 	"github.com/imrandev/localcloud/gateway/pkg/context"
 	gatewayIAM "github.com/imrandev/localcloud/gateway/pkg/iam"
 	"github.com/imrandev/localcloud/services"
+	"github.com/imrandev/localcloud/services/cloudformation"
+	"github.com/imrandev/localcloud/services/ec2"
+	"github.com/imrandev/localcloud/services/rds"
+	"github.com/imrandev/localcloud/services/s3"
 	"github.com/imrandev/localcloud/services/ses"
+	"github.com/imrandev/localcloud/services/sns"
+	"github.com/imrandev/localcloud/services/sqs"
 )
 
 type ConsoleHandler struct {
-	mu           sync.RWMutex
-	chaosConfig  map[string]interface{}
+	mu          sync.RWMutex
+	chaosConfig map[string]interface{}
 }
 
 func NewHandler() *ConsoleHandler {
 	return &ConsoleHandler{
 		chaosConfig: map[string]interface{}{
-			"latency_ms": 0,
+			"latency_ms":         0,
 			"simulate_az_outage": false,
-			"throttle_requests": false,
+			"throttle_requests":  false,
 		},
 	}
 }
@@ -49,6 +55,8 @@ func (h *ConsoleHandler) handleAPI(w http.ResponseWriter, r *http.Request) {
 	switch path {
 	case "/api/stats":
 		h.handleStats(w, r)
+	case "/api/resources":
+		h.handleResources(w, r)
 	case "/api/stream/inspector":
 		h.handleStreamInspector(w, r)
 	case "/api/events":
@@ -74,6 +82,20 @@ func (h *ConsoleHandler) handleAPI(w http.ResponseWriter, r *http.Request) {
 	default:
 		http.NotFound(w, r)
 	}
+}
+
+func (h *ConsoleHandler) handleResources(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	res := map[string]interface{}{
+		"ec2":            ec2.GetInstances(),
+		"sqs":            sqs.GetQueues(),
+		"sns":            sns.GetTopics(),
+		"rds":            rds.GetDBInstances(),
+		"cloudformation": cloudformation.GetStacks(),
+		"s3":             s3.GetBuckets(),
+		"iam":            gatewayIAM.GlobalIAM.Users,
+	}
+	_ = json.NewEncoder(w).Encode(res)
 }
 
 func (h *ConsoleHandler) handleStats(w http.ResponseWriter, r *http.Request) {
@@ -170,8 +192,8 @@ func (h *ConsoleHandler) handleIAMSimulate(w http.ResponseWriter, r *http.Reques
 func (h *ConsoleHandler) handleBilling(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	billing := map[string]interface{}{
-		"currency": "USD",
-		"total_estimated_monthly": "$0.00 (LocalCloud Free Learning)",
+		"currency":                    "USD",
+		"total_estimated_monthly":     "$0.00 (LocalCloud Free Learning)",
 		"real_aws_equivalent_monthly": "$34.50",
 		"services": []map[string]string{
 			{"service": "Amazon EC2", "units": "1 t3.micro (730 hrs)", "real_aws_cost": "$7.45", "localcloud_cost": "$0.00"},
@@ -211,24 +233,24 @@ func (h *ConsoleHandler) handleQuizzes(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	quizzes := []map[string]interface{}{
 		{
-			"id": "q1",
-			"track": "Cloud Practitioner (CLF-C02)",
-			"question": "Which AWS pillar of the Well-Architected Framework focuses on running workloads effectively and gaining insights into operations?",
-			"options": []string{"Operational Excellence", "Security", "Reliability", "Cost Optimization"},
-			"correct": 0,
+			"id":          "q1",
+			"track":       "Cloud Practitioner (CLF-C02)",
+			"question":    "Which AWS pillar of the Well-Architected Framework focuses on running workloads effectively and gaining insights into operations?",
+			"options":     []string{"Operational Excellence", "Security", "Reliability", "Cost Optimization"},
+			"correct":     0,
 			"explanation": "Operational Excellence focuses on running and monitoring systems to deliver business value and continually improving processes.",
 		},
 		{
-			"id": "q2",
-			"track": "Solutions Architect Associate (SAA-C03)",
-			"question": "An application requires decoupled asynchronous processing where multiple subscriber services receive every order event. Which architecture is best?",
-			"options": []string{"Amazon S3 with Lifecycle Rules", "Amazon SNS Topic with Amazon SQS Queue Fanout", "Single EC2 instance with cron", "Amazon Route 53 Geolocation"},
-			"correct": 1,
+			"id":          "q2",
+			"track":       "Solutions Architect Associate (SAA-C03)",
+			"question":    "An application requires decoupled asynchronous processing where multiple subscriber services receive every order event. Which architecture is best?",
+			"options":     []string{"Amazon S3 with Lifecycle Rules", "Amazon SNS Topic with Amazon SQS Queue Fanout", "Single EC2 instance with cron", "Amazon Route 53 Geolocation"},
+			"correct":     1,
 			"explanation": "The SNS topic to multiple SQS queues (fanout pattern) delivers identical broadcast messages to decoupled subscriber queues.",
 		},
 		{
-			"id": "q3",
-			"track": "Security Specialty",
+			"id":       "q3",
+			"track":    "Security Specialty",
 			"question": "What is the primary difference between a Security Group and a Network Access Control List (NACL)?",
 			"options": []string{
 				"Security Groups are stateless; NACLs are stateful",
@@ -236,7 +258,7 @@ func (h *ConsoleHandler) handleQuizzes(w http.ResponseWriter, r *http.Request) {
 				"NACLs only support Allow rules",
 				"Security Groups support Deny rules explicitly",
 			},
-			"correct": 1,
+			"correct":     1,
 			"explanation": "Security Groups are stateful firewalls evaluated at the instance ENI level. NACLs are stateless subnets firewalls evaluating rules in numeric order.",
 		},
 	}

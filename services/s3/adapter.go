@@ -4,7 +4,6 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/xml"
-	
 	"io"
 	"net/http"
 	"os"
@@ -19,9 +18,9 @@ import (
 )
 
 type S3Adapter struct {
-	mu         sync.RWMutex
-	buckets    map[string]*BucketMeta
-	dataDir    string
+	mu      sync.RWMutex
+	buckets map[string]*BucketMeta
+	dataDir string
 }
 
 type BucketMeta struct {
@@ -33,6 +32,8 @@ type BucketMeta struct {
 	Tags         map[string]string `json:"tags"`
 }
 
+var DefaultS3 *S3Adapter
+
 func init() {
 	dataDir := os.Getenv("LOCALCLOUD_DATA_DIR")
 	if dataDir == "" {
@@ -41,10 +42,24 @@ func init() {
 	s3Dir := filepath.Join(dataDir, "s3")
 	_ = os.MkdirAll(s3Dir, 0755)
 
-	services.Register(&S3Adapter{
+	DefaultS3 = &S3Adapter{
 		buckets: make(map[string]*BucketMeta),
 		dataDir: s3Dir,
-	})
+	}
+	services.Register(DefaultS3)
+}
+
+func GetBuckets() []*BucketMeta {
+	if DefaultS3 == nil {
+		return []*BucketMeta{}
+	}
+	DefaultS3.mu.RLock()
+	defer DefaultS3.mu.RUnlock()
+	var list []*BucketMeta
+	for _, b := range DefaultS3.buckets {
+		list = append(list, b)
+	}
+	return list
 }
 
 func (a *S3Adapter) Name() string {
@@ -57,21 +72,21 @@ func (a *S3Adapter) Protocol() services.Protocol {
 
 func (a *S3Adapter) Operations() map[string]services.Handler {
 	return map[string]services.Handler{
-		"CreateBucket":         a.CreateBucket,
-		"ListBuckets":          a.ListBuckets,
-		"DeleteBucket":         a.DeleteBucket,
-		"HeadBucket":           a.HeadBucket,
-		"PutObject":            a.PutObject,
-		"GetObject":            a.GetObject,
-		"DeleteObject":         a.DeleteObject,
-		"ListObjects":          a.ListObjectsV2,
-		"ListObjectsV2":        a.ListObjectsV2,
-		"HeadObject":           a.HeadObject,
-		"PutBucketPolicy":      a.PutBucketPolicy,
-		"GetBucketPolicy":      a.GetBucketPolicy,
-		"DeleteBucketPolicy":   a.DeleteBucketPolicy,
-		"PutBucketVersioning":  a.PutBucketVersioning,
-		"GetBucketVersioning":  a.GetBucketVersioning,
+		"CreateBucket":        a.CreateBucket,
+		"ListBuckets":         a.ListBuckets,
+		"DeleteBucket":        a.DeleteBucket,
+		"HeadBucket":          a.HeadBucket,
+		"PutObject":           a.PutObject,
+		"GetObject":           a.GetObject,
+		"DeleteObject":        a.DeleteObject,
+		"ListObjects":         a.ListObjectsV2,
+		"ListObjectsV2":       a.ListObjectsV2,
+		"HeadObject":          a.HeadObject,
+		"PutBucketPolicy":     a.PutBucketPolicy,
+		"GetBucketPolicy":     a.GetBucketPolicy,
+		"DeleteBucketPolicy":  a.DeleteBucketPolicy,
+		"PutBucketVersioning": a.PutBucketVersioning,
+		"GetBucketVersioning": a.GetBucketVersioning,
 	}
 }
 
@@ -184,7 +199,6 @@ func (a *S3Adapter) PutObject(ctx *context.RequestContext, r *http.Request) (int
 	_, _ = writer.Write(ctx.RawBody)
 
 	var _ = "\"" + hex.EncodeToString(hasher.Sum(nil)) + "\""
-	// Return ETag via header (handled in response writer)
 	return nil, nil
 }
 
@@ -211,14 +225,14 @@ func (a *S3Adapter) DeleteObject(ctx *context.RequestContext, r *http.Request) (
 }
 
 type ListBucketResult struct {
-	XMLName        xml.Name   `xml:"ListBucketResult"`
-	Xmlns          string     `xml:"xmlns,attr"`
-	Name           string     `xml:"Name"`
-	Prefix         string     `xml:"Prefix"`
-	KeyCount       int        `xml:"KeyCount"`
-	MaxKeys        int        `xml:"MaxKeys"`
-	IsTruncated    bool       `xml:"IsTruncated"`
-	Contents       []S3Object `xml:"Contents"`
+	XMLName     xml.Name   `xml:"ListBucketResult"`
+	Xmlns       string     `xml:"xmlns,attr"`
+	Name        string     `xml:"Name"`
+	Prefix      string     `xml:"Prefix"`
+	KeyCount    int        `xml:"KeyCount"`
+	MaxKeys     int        `xml:"MaxKeys"`
+	IsTruncated bool       `xml:"IsTruncated"`
+	Contents    []S3Object `xml:"Contents"`
 }
 
 type S3Object struct {

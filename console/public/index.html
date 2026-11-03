@@ -50,7 +50,7 @@
 
     <!-- Right Header Controls -->
     <div class="flex items-center space-x-2 text-xs">
-      <!-- Language Switcher (English / Bangla) -->
+      <!-- Language Switcher -->
       <button onclick="toggleLanguage()" class="flex items-center space-x-1 px-2 py-1 rounded hover-aws text-gray-200 text-xs font-medium border border-gray-700">
         <i class="fa-solid fa-language text-aws-orange"></i>
         <span id="currentLangLabel">English / বাংলা</span>
@@ -201,14 +201,13 @@
           </div>
         </div>
 
-        <!-- Quick Stats Cards -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
             <div class="flex items-center justify-between text-gray-500 text-xs font-semibold uppercase">
               <span>S3 Storage</span>
               <i class="fa-solid fa-bucket text-green-600 text-lg"></i>
             </div>
-            <p class="text-2xl font-bold text-gray-800 mt-2">Active</p>
+            <p id="stat-s3-count" class="text-2xl font-bold text-gray-800 mt-2">Active</p>
             <p class="text-[11px] text-gray-500 mt-1">Static web & data buckets</p>
           </div>
           <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
@@ -216,7 +215,7 @@
               <span>EC2 Compute</span>
               <i class="fa-solid fa-server text-orange-500 text-lg"></i>
             </div>
-            <p class="text-2xl font-bold text-gray-800 mt-2">Running</p>
+            <p id="stat-ec2-count" class="text-2xl font-bold text-gray-800 mt-2">Running</p>
             <p class="text-[11px] text-gray-500 mt-1">Virtual compute containers</p>
           </div>
           <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
@@ -237,7 +236,6 @@
           </div>
         </div>
 
-        <!-- CLI Quickstart Box -->
         <div class="bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
           <div class="flex items-center justify-between mb-3">
             <h3 class="font-bold text-sm text-gray-800 flex items-center space-x-2">
@@ -265,6 +263,184 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
         </div>
       </section>
 
+      <!-- AMAZON EC2 VIEW -->
+      <section id="view-ec2" class="hidden space-y-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900 flex items-center space-x-2">
+              <i class="fa-solid fa-server text-orange-500"></i>
+              <span>Amazon EC2 Dashboard</span>
+            </h1>
+            <p class="text-sm text-gray-500">Virtual servers in the cloud with custom AMIs, key pairs, and security groups.</p>
+          </div>
+          <div class="flex space-x-2">
+            <button onclick="executeAction('ec2-launch')" class="bg-aws-orange hover:bg-amber-600 text-black font-semibold text-xs px-4 py-2 rounded shadow">
+              <i class="fa-solid fa-plus mr-1"></i>Launch instances
+            </button>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+          <div class="p-3 bg-gray-50 border-b border-gray-200 font-bold text-xs text-gray-700 flex justify-between items-center">
+            <span>Instances (Running)</span>
+            <span class="text-gray-400 font-normal">Filtered: All</span>
+          </div>
+          <table class="w-full text-left border-collapse text-xs">
+            <thead class="bg-gray-100 border-b border-gray-200 text-gray-500 font-semibold uppercase">
+              <tr>
+                <th class="p-3">Instance ID</th>
+                <th class="p-3">Type</th>
+                <th class="p-3">State</th>
+                <th class="p-3">Public IPv4</th>
+                <th class="p-3">Private IPv4</th>
+                <th class="p-3">VPC / Subnet</th>
+              </tr>
+            </thead>
+            <tbody id="ec2TableBody" class="divide-y divide-gray-100 font-mono">
+              <tr>
+                <td colspan="6" class="p-6 text-center text-gray-400 font-sans">No instances found. Launch one using <code class="text-aws-orange">aws ec2 run-instances</code>.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- AMAZON SQS VIEW -->
+      <section id="view-sqs" class="hidden space-y-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900 flex items-center space-x-2">
+              <i class="fa-solid fa-envelope-open-text text-pink-500"></i>
+              <span>Amazon Simple Queue Service (SQS)</span>
+            </h1>
+            <p class="text-sm text-gray-500">Fully managed message queues for microservices, distributed systems, and serverless applications.</p>
+          </div>
+          <button onclick="executeAction('sqs-create')" class="bg-aws-orange hover:bg-amber-600 text-black font-semibold text-xs px-4 py-2 rounded shadow">
+            <i class="fa-solid fa-plus mr-1"></i>Create queue
+          </button>
+        </div>
+
+        <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead class="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold uppercase">
+              <tr>
+                <th class="p-3">Queue Name</th>
+                <th class="p-3">Type</th>
+                <th class="p-3">Messages Available</th>
+                <th class="p-3">Queue URL</th>
+              </tr>
+            </thead>
+            <tbody id="sqsTableBody" class="divide-y divide-gray-100">
+              <tr>
+                <td colspan="4" class="p-6 text-center text-gray-400">No queues found. Create one using <code class="text-aws-orange">aws sqs create-queue</code>.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- AMAZON SNS VIEW -->
+      <section id="view-sns" class="hidden space-y-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900 flex items-center space-x-2">
+              <i class="fa-solid fa-bullhorn text-rose-500"></i>
+              <span>Amazon Simple Notification Service (SNS)</span>
+            </h1>
+            <p class="text-sm text-gray-500">High-throughput, push-based publish/subscribe messaging service.</p>
+          </div>
+          <button onclick="executeAction('sns-create')" class="bg-aws-orange hover:bg-amber-600 text-black font-semibold text-xs px-4 py-2 rounded shadow">
+            <i class="fa-solid fa-plus mr-1"></i>Create topic
+          </button>
+        </div>
+
+        <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead class="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold uppercase">
+              <tr>
+                <th class="p-3">Topic Name</th>
+                <th class="p-3">Type</th>
+                <th class="p-3">Topic ARN</th>
+              </tr>
+            </thead>
+            <tbody id="snsTableBody" class="divide-y divide-gray-100 font-mono">
+              <tr>
+                <td colspan="3" class="p-6 text-center text-gray-400 font-sans">No topics found. Create one using <code class="text-aws-orange">aws sns create-topic</code>.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- AMAZON RDS VIEW -->
+      <section id="view-rds" class="hidden space-y-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900 flex items-center space-x-2">
+              <i class="fa-solid fa-database text-blue-600"></i>
+              <span>Amazon Relational Database Service (RDS)</span>
+            </h1>
+            <p class="text-sm text-gray-500">Managed relational database engines: PostgreSQL, MySQL, MariaDB with automated backups and multi-AZ simulation.</p>
+          </div>
+          <button onclick="executeAction('rds-create')" class="bg-aws-orange hover:bg-amber-600 text-black font-semibold text-xs px-4 py-2 rounded shadow">
+            <i class="fa-solid fa-plus mr-1"></i>Create database
+          </button>
+        </div>
+
+        <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead class="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold uppercase">
+              <tr>
+                <th class="p-3">DB Identifier</th>
+                <th class="p-3">Engine</th>
+                <th class="p-3">Class</th>
+                <th class="p-3">Status</th>
+                <th class="p-3">Endpoint & Port</th>
+              </tr>
+            </thead>
+            <tbody id="rdsTableBody" class="divide-y divide-gray-100">
+              <tr>
+                <td colspan="5" class="p-6 text-center text-gray-400">No databases found. Provision one using <code class="text-aws-orange">aws rds create-db-instance</code>.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- CLOUDFORMATION VIEW -->
+      <section id="view-cloudformation" class="hidden space-y-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900 flex items-center space-x-2">
+              <i class="fa-solid fa-layer-group text-orange-600"></i>
+              <span>AWS CloudFormation</span>
+            </h1>
+            <p class="text-sm text-gray-500">Model, provision, and manage AWS resources with Infrastructure as Code (IaC) templates.</p>
+          </div>
+          <button onclick="executeAction('cfn-create')" class="bg-aws-orange hover:bg-amber-600 text-black font-semibold text-xs px-4 py-2 rounded shadow">
+            <i class="fa-solid fa-plus mr-1"></i>Create stack
+          </button>
+        </div>
+
+        <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead class="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold uppercase">
+              <tr>
+                <th class="p-3">Stack Name</th>
+                <th class="p-3">Status</th>
+                <th class="p-3">Created Time</th>
+                <th class="p-3">Stack ID</th>
+              </tr>
+            </thead>
+            <tbody id="cfnTableBody" class="divide-y divide-gray-100 font-mono">
+              <tr>
+                <td colspan="4" class="p-6 text-center text-gray-400 font-sans">No stacks found. Deploy one using <code class="text-aws-orange">aws cloudformation create-stack</code>.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
       <!-- VISUAL RESOURCE MAP VIEW -->
       <section id="view-resourcemap" class="hidden space-y-6">
         <div>
@@ -285,7 +461,6 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
                   <span class="text-[10px] bg-green-100 text-green-800 px-2 py-0.5 rounded font-mono">Available</span>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
-                  <!-- Public Subnet -->
                   <div class="bg-white p-4 rounded-lg border border-blue-200 shadow-sm">
                     <span class="text-[11px] font-bold text-gray-700">Public Subnet</span>
                     <p class="text-[10px] text-gray-400 font-mono">10.0.1.0/24</p>
@@ -297,7 +472,6 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
                       </div>
                     </div>
                   </div>
-                  <!-- Private Subnet -->
                   <div class="bg-white p-4 rounded-lg border border-blue-200 shadow-sm">
                     <span class="text-[11px] font-bold text-gray-700">Private Subnet</span>
                     <p class="text-[10px] text-gray-400 font-mono">10.0.2.0/24</p>
@@ -418,10 +592,7 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
           </h1>
           <p class="text-sm text-gray-500">Test your knowledge with official AWS exam-aligned questions and step-by-step explanations.</p>
         </div>
-
-        <div id="quizzesContainer" class="space-y-4">
-          <!-- Populated by JavaScript -->
-        </div>
+        <div id="quizzesContainer" class="space-y-4"></div>
       </section>
 
       <!-- GUIDED LABS VIEW -->
@@ -432,10 +603,7 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
             <p class="text-sm text-gray-500">Practice real AWS scenarios mapped to official certification tracks with live automated grading.</p>
           </div>
         </div>
-
-        <div id="labsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <!-- Populated by JavaScript -->
-        </div>
+        <div id="labsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
       </section>
 
       <!-- LIVE API INSPECTOR VIEW -->
@@ -493,13 +661,7 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
                 <th class="p-3">Creation Date</th>
               </tr>
             </thead>
-            <tbody id="s3BucketsTable" class="divide-y divide-gray-100">
-              <tr>
-                <td class="p-3 font-semibold text-gray-900">learner-cloud-bucket</td>
-                <td class="p-3 text-gray-500">us-east-1</td>
-                <td class="p-3 text-gray-500">Active</td>
-              </tr>
-            </tbody>
+            <tbody id="s3BucketsTable" class="divide-y divide-gray-100"></tbody>
           </table>
         </div>
       </section>
@@ -520,17 +682,7 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
                 <th class="p-3">Access Keys</th>
               </tr>
             </thead>
-            <tbody id="iamUsersTable" class="divide-y divide-gray-100">
-              <tr>
-                <td class="p-3 font-semibold text-gray-900 flex items-center space-x-2">
-                  <i class="fa-solid fa-crown text-amber-500"></i>
-                  <span>root</span>
-                </td>
-                <td class="p-3 font-mono text-gray-600">arn:aws:iam::000000000000:root</td>
-                <td class="p-3"><span class="bg-green-100 text-green-800 px-2 py-0.5 rounded font-mono text-[10px]">AdministratorAccess (*)</span></td>
-                <td class="p-3 font-mono">AKIAIOSFODNN7EXAMPLE</td>
-              </tr>
-            </tbody>
+            <tbody id="iamUsersTable" class="divide-y divide-gray-100"></tbody>
           </table>
         </div>
       </section>
@@ -613,21 +765,211 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
     let inspectorEvents = [];
     let currentLang = 'en';
 
+    const allViews = [
+      'dashboard', 'labs', 'resourcemap', 'inspector', 'quizzes', 'chaos', 'mailbox', 
+      's3', 'iam', 'ec2', 'sqs', 'sns', 'rds', 'cloudformation', 'billing'
+    ];
+
     function showView(viewName) {
-      const views = ['dashboard', 'labs', 'resourcemap', 'inspector', 'quizzes', 'chaos', 'mailbox', 's3', 'iam', 'billing'];
-      views.forEach(function(v) {
+      allViews.forEach(function(v) {
         const el = document.getElementById('view-' + v);
         const nav = document.getElementById('nav-' + v);
         if (el) el.classList.add('hidden');
         if (nav) nav.classList.remove('bg-gray-200', 'font-bold');
       });
+
       const activeEl = document.getElementById('view-' + viewName);
       const activeNav = document.getElementById('nav-' + viewName);
       if (activeEl) activeEl.classList.remove('hidden');
       if (activeNav) activeNav.classList.add('bg-gray-200', 'font-bold');
+
+      // Load data for the selected view
       if (viewName === 'labs') loadLabs();
       if (viewName === 'quizzes') loadQuizzes();
       if (viewName === 'mailbox') loadMailbox();
+      loadResources();
+    }
+
+    function loadResources() {
+      fetch('/api/resources')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          // 1. EC2
+          const ec2Tbody = document.getElementById('ec2TableBody');
+          if (ec2Tbody && data.ec2) {
+            if (data.ec2.length === 0) {
+              ec2Tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-gray-400 font-sans">No instances found. Launch one using <code class="text-aws-orange">aws ec2 run-instances</code>.</td></tr>';
+            } else {
+              ec2Tbody.innerHTML = '';
+              data.ec2.forEach(function(inst) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = 
+                  '<td class="p-3 font-bold text-blue-600">' + inst.instance_id + '</td>' +
+                  '<td class="p-3">' + inst.instance_type + '</td>' +
+                  '<td class="p-3"><span class="bg-green-100 text-green-800 px-2 py-0.5 rounded text-[10px] font-bold uppercase">' + inst.state + '</span></td>' +
+                  '<td class="p-3">' + inst.public_ip + '</td>' +
+                  '<td class="p-3">' + inst.private_ip + '</td>' +
+                  '<td class="p-3 text-gray-500">' + inst.vpc_id + ' / ' + inst.subnet_id + '</td>';
+                ec2Tbody.appendChild(tr);
+              });
+            }
+          }
+
+          // 2. SQS
+          const sqsTbody = document.getElementById('sqsTableBody');
+          if (sqsTbody && data.sqs) {
+            if (data.sqs.length === 0) {
+              sqsTbody.innerHTML = '<tr><td colspan="4" class="p-6 text-center text-gray-400">No queues found. Create one using <code class="text-aws-orange">aws sqs create-queue</code>.</td></tr>';
+            } else {
+              sqsTbody.innerHTML = '';
+              data.sqs.forEach(function(q) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = 
+                  '<td class="p-3 font-bold text-gray-900">' + q.name + '</td>' +
+                  '<td class="p-3"><span class="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-[10px] font-mono">Standard</span></td>' +
+                  '<td class="p-3 font-mono font-bold text-purple-700">' + (q.messages ? q.messages.length : 0) + '</td>' +
+                  '<td class="p-3 font-mono text-[11px] text-gray-500">' + q.url + '</td>';
+                sqsTbody.appendChild(tr);
+              });
+            }
+          }
+
+          // 3. SNS
+          const snsTbody = document.getElementById('snsTableBody');
+          if (snsTbody && data.sns) {
+            if (data.sns.length === 0) {
+              snsTbody.innerHTML = '<tr><td colspan="3" class="p-6 text-center text-gray-400 font-sans">No topics found. Create one using <code class="text-aws-orange">aws sns create-topic</code>.</td></tr>';
+            } else {
+              snsTbody.innerHTML = '';
+              data.sns.forEach(function(t) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = 
+                  '<td class="p-3 font-bold text-gray-900 font-sans">' + t.name + '</td>' +
+                  '<td class="p-3 font-sans"><span class="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-[10px] font-mono">Standard</span></td>' +
+                  '<td class="p-3 text-gray-500 text-[11px]">' + t.arn + '</td>';
+                snsTbody.appendChild(tr);
+              });
+            }
+          }
+
+          // 4. RDS
+          const rdsTbody = document.getElementById('rdsTableBody');
+          if (rdsTbody && data.rds) {
+            if (data.rds.length === 0) {
+              rdsTbody.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-gray-400">No databases found. Provision one using <code class="text-aws-orange">aws rds create-db-instance</code>.</td></tr>';
+            } else {
+              rdsTbody.innerHTML = '';
+              data.rds.forEach(function(db) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = 
+                  '<td class="p-3 font-bold text-blue-600 font-mono">' + db.identifier + '</td>' +
+                  '<td class="p-3 uppercase font-semibold text-gray-700">' + db.engine + '</td>' +
+                  '<td class="p-3 font-mono">' + db.class + '</td>' +
+                  '<td class="p-3"><span class="bg-green-100 text-green-800 px-2 py-0.5 rounded text-[10px] font-bold uppercase">' + db.status + '</span></td>' +
+                  '<td class="p-3 font-mono text-[11px] text-gray-600">' + db.endpoint + ':' + db.port + '</td>';
+                rdsTbody.appendChild(tr);
+              });
+            }
+          }
+
+          // 5. CloudFormation
+          const cfnTbody = document.getElementById('cfnTableBody');
+          if (cfnTbody && data.cloudformation) {
+            if (data.cloudformation.length === 0) {
+              cfnTbody.innerHTML = '<tr><td colspan="4" class="p-6 text-center text-gray-400 font-sans">No stacks found. Deploy one using <code class="text-aws-orange">aws cloudformation create-stack</code>.</td></tr>';
+            } else {
+              cfnTbody.innerHTML = '';
+              data.cloudformation.forEach(function(stk) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = 
+                  '<td class="p-3 font-bold text-gray-900 font-sans">' + stk.name + '</td>' +
+                  '<td class="p-3 font-sans"><span class="bg-green-100 text-green-800 px-2 py-0.5 rounded text-[10px] font-bold uppercase">' + stk.status + '</span></td>' +
+                  '<td class="p-3 text-gray-500 font-sans">' + stk.created_time.slice(0, 19).replace('T', ' ') + '</td>' +
+                  '<td class="p-3 text-gray-400 text-[11px]">' + stk.id + '</td>';
+                cfnTbody.appendChild(tr);
+              });
+            }
+          }
+
+          // 6. S3
+          const s3Tbody = document.getElementById('s3BucketsTable');
+          if (s3Tbody && data.s3) {
+            s3Tbody.innerHTML = '';
+            data.s3.forEach(function(b) {
+              const tr = document.createElement('tr');
+              tr.innerHTML = 
+                '<td class="p-3 font-semibold text-gray-900 flex items-center space-x-2">' +
+                  '<i class="fa-solid fa-bucket text-green-600"></i>' +
+                  '<span>' + b.name + '</span>' +
+                '</td>' +
+                '<td class="p-3 text-gray-500 font-mono">us-east-1</td>' +
+                '<td class="p-3 text-gray-500">' + b.creation_date.slice(0, 10) + '</td>';
+              s3Tbody.appendChild(tr);
+            });
+          }
+
+          // 7. IAM
+          const iamTbody = document.getElementById('iamUsersTable');
+          if (iamTbody && data.iam) {
+            iamTbody.innerHTML = '';
+            for (let name in data.iam) {
+              const u = data.iam[name];
+              const tr = document.createElement('tr');
+              tr.innerHTML = 
+                '<td class="p-3 font-semibold text-gray-900 flex items-center space-x-2">' +
+                  '<i class="fa-solid fa-user text-gray-500"></i>' +
+                  '<span>' + u.user_name + '</span>' +
+                '</td>' +
+                '<td class="p-3 font-mono text-gray-600 text-[11px]">' + u.arn + '</td>' +
+                '<td class="p-3"><span class="bg-green-100 text-green-800 px-2 py-0.5 rounded font-mono text-[10px]">AdministratorAccess (*)</span></td>' +
+                '<td class="p-3 font-mono text-[11px]">' + u.user_id + '</td>';
+              iamTbody.appendChild(tr);
+            }
+          }
+        });
+    }
+
+    function executeAction(act) {
+      if (act === 'ec2-launch') {
+        const id = 'i-' + Math.random().toString(16).slice(2, 10);
+        alert('To launch an EC2 instance, run in terminal:\n\naws --endpoint-url http://localhost:4566 ec2 run-instances --image-id ami-0c55b159cbfafe1f0 --instance-type t3.micro');
+      } else if (act === 'sqs-create') {
+        const qName = prompt('Enter SQS Queue Name:', 'my-order-queue');
+        if (qName) {
+          fetch('http://localhost:4566', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: 'Action=CreateQueue&QueueName=' + encodeURIComponent(qName)
+          }).then(function() { loadResources(); });
+        }
+      } else if (act === 'sns-create') {
+        const tName = prompt('Enter SNS Topic Name:', 'my-notifications');
+        if (tName) {
+          fetch('http://localhost:4566', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: 'Action=CreateTopic&Name=' + encodeURIComponent(tName)
+          }).then(function() { loadResources(); });
+        }
+      } else if (act === 'rds-create') {
+        const dbId = prompt('Enter DB Instance Identifier:', 'app-db');
+        if (dbId) {
+          fetch('http://localhost:4566', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: 'Action=CreateDBInstance&DBInstanceIdentifier=' + encodeURIComponent(dbId) + '&DBInstanceClass=db.t3.micro&Engine=postgres'
+          }).then(function() { loadResources(); });
+        }
+      } else if (act === 'cfn-create') {
+        const sName = prompt('Enter CloudFormation Stack Name:', 'web-app-stack');
+        if (sName) {
+          fetch('http://localhost:4566', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: 'Action=CreateStack&StackName=' + encodeURIComponent(sName)
+          }).then(function() { loadResources(); });
+        }
+      }
     }
 
     function toggleLanguage() {
@@ -849,6 +1191,7 @@ aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queu
 
     window.onload = function() {
       connectInspectorSSE();
+      loadResources();
     };
   </script>
 </body>
